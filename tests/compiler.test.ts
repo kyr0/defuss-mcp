@@ -4,6 +4,10 @@ import { mkdtempSync, writeFileSync, readFileSync, rmSync, mkdirSync } from 'nod
 import { resolve } from 'node:path';
 import { generateContracts } from '../bin/generate.mjs';
 
+// Each test builds real TypeScript programs. VERIFIED: (vitest, M5 Max) V8 coverage instruments the whole compiler and
+// slows them about fivefold, and a loaded host reached 28 s, so this limit only catches a hang.
+const COMPILE_TIMEOUT = 120_000;
+
 it('compiles imported types and JSDoc, checks drift, and rejects ambiguous or recursive contracts atomically', async () => {
   mkdirSync('tmp', { recursive: true });
   const dir = mkdtempSync(resolve('tmp', 'contracts-'));
@@ -52,7 +56,7 @@ it('compiles imported types and JSDoc, checks drift, and rejects ambiguous or re
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-}, 30000);
+}, COMPILE_TIMEOUT);
 
 it('compiles aliases, documented properties, literal unions and void using an explicit project', async () => {
   const dir = mkdtempSync(resolve('tmp', 'contract-signatures-'));
@@ -101,7 +105,7 @@ it('compiles aliases, documented properties, literal unions and void using an ex
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-});
+}, COMPILE_TIMEOUT);
 
 it('diagnoses project and signature errors without writing a sidecar', async () => {
   const dir = mkdtempSync(resolve('tmp', 'contract-errors-'));
@@ -137,4 +141,4 @@ it('diagnoses project and signature errors without writing a sidecar', async () 
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-}, 30000);
+}, COMPILE_TIMEOUT);

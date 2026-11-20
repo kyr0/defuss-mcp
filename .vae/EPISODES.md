@@ -86,3 +86,5 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-20T14:30:55Z s=12d4a3d6 FINDING package.json:bin learn=test: scripts/matrix.ts invokes the installed binary by its new name in every e2e run
 2026-11-20T14:30:55Z s=12d4a3d6 FINDING site/index.html:#api desc learn=none: one-off wording; claim now matches the probe
 2026-11-20T14:33:15Z s=release DONE fp=3186f8d00e7a cov=99.9% paths=.github/workflows/verify.yml,AGENTS.md,ARCH.md,Makefile(+96)
+2026-11-20T17:30:21Z s=12d4a3d6 DONE fp=40b03e92c9cf cov=99.9% paths=tests/compiler.test.ts
+2026-11-20T17:30:21Z s=12d4a3d6 FINDING tests/compiler.test.ts:'compiles aliases…' learn=none: a timeout value is environment-dependent; no test pins it, the constant documents why
