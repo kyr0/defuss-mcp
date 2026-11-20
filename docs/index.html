@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>defuss-mcp: TypeScript functions as MCP tools</title>
+  <meta name="description" content="Register TypeScript functions as Model Context Protocol tools and serve them over stdio, Express, bunway or any Fetch handler, with typed clients, agent-readable corrections and binary payloads.">
+  <meta property="og:title" content="defuss-mcp: TypeScript functions as MCP tools">
+  <meta property="og:description" content="Register TypeScript functions as Model Context Protocol tools and serve them over stdio, Express, bunway or any Fetch handler, with typed clients, agent-readable corrections and binary payloads.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://mcp.defuss.org/">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0a12">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <script>
+    // Before first paint: the saved theme, else the system preference.
+    (() => {
+      let saved = null;
+      try { saved = localStorage.getItem('mcp-theme'); } catch {}
+      const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', dark);
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+      if (location.protocol !== 'file:') document.documentElement.dataset.served = '';
+    })();
+  </script>
+  <script type="module" crossorigin src="./assets/index-CLCw4mkl.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CCZ2h2wp.css">
+</head>
+<body>
+<svg class="sr-only" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 12 4 7.5M12 12l8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" opacity=".55"/><circle class="mcp-logo-dot" cx="12" cy="12" r="2.6"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14m7-7-7 7-7-7"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M7 7h10v10M7 17 17 7"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 3.5v17l14-8.5z"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+  <symbol id="i-function" viewBox="0 0 24 24"><path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"/><path d="M9 11.2h5.7"/><rect width="18" height="18" x="3" y="3" rx="2"/></symbol>
+  <symbol id="i-binary" viewBox="0 0 24 24"><rect x="14" y="14" width="4" height="6" rx="2"/><rect x="6" y="4" width="4" height="6" rx="2"/><path d="M6 20h4M14 10h4M6 14h2v6M14 4h2v6"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 22v-5M9 8V2m6 6V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-bot" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2m16 0h2m-7-1v2m-6-2v2"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6m8 14h8"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16V9m5 7V5m5 11v-4"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M8 13h8M8 17h5"/></symbol>
+</svg>
+
+<a class="mcp-skip" href="#main">Skip to content</a>
+<div class="mcp-page">
+  <header class="mk-header mcp-header" data-variant="floating">
+    <div class="mk-header-inner">
+      <a href="./" class="mk-header-brand mcp-brand" aria-label="defuss-mcp home"><svg class="mcp-logo" aria-hidden="true"><use href="#i-logo"/></svg><span class="mk-header-name">defuss-mcp</span></a>
+      <nav class="mk-header-nav" aria-label="Main">
+        <ul class="nav-menu-list">
+          <li class="nav-menu-item"><a class="nav-menu-link" href="./#how">How it works</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="./#demo">Live demo</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="./#clients">Clients</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="./#performance">Performance</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="./#install">Install</a></li>
+        </ul>
+      </nav>
+      <div class="mk-header-actions">
+        <label class="swap" data-variant="rotate" data-size="sm">
+          <input type="checkbox" id="theme-toggle" aria-label="Dark theme">
+          <span class="swap-on" aria-hidden="true"><svg class="mcp-icon"><use href="#i-moon"/></svg></span>
+          <span class="swap-off" aria-hidden="true"><svg class="mcp-icon"><use href="#i-sun"/></svg></span>
+        </label>
+        <a class="btn mcp-wide" data-variant="ghost" data-size="icon" href="https://github.com/kyr0/defuss-mcp" target="_blank" rel="noopener" aria-label="defuss-mcp on GitHub"><svg class="mcp-icon" aria-hidden="true"><use href="#i-github"/></svg></a>
+        <button type="button" class="btn mcp-menu" data-variant="ghost" data-size="icon" data-sheet-trigger="mcp-sheet" aria-haspopup="dialog" aria-label="Open the menu"><svg class="mcp-icon" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <dialog id="mcp-sheet" class="sheet" data-side="right" aria-modal="true" aria-labelledby="mcp-sheet-title">
+    <div class="sheet-content">
+      <div class="sheet-header"><h2 class="sheet-title" id="mcp-sheet-title">defuss-mcp</h2></div>
+      <div class="sheet-body">
+        <ul class="mk-header-sheet-nav">
+          <li><a data-sheet-close href="./#how">How it works</a></li>
+          <li><a data-sheet-close href="./#demo">Live demo</a></li>
+          <li><a data-sheet-close href="./#clients">Tested clients</a></li>
+          <li><a data-sheet-close href="./#performance">Performance</a></li>
+          <li><a data-sheet-close href="./#install">Install</a></li>
+        </ul>
+      </div>
+      <div class="sheet-footer"><a class="btn" data-variant="outline" href="https://github.com/kyr0/defuss-mcp" target="_blank" rel="noopener"><svg class="mcp-icon" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a></div>
+    </div>
+  </dialog>
+
+  <main id="main" class="mcp-main" tabindex="-1">
+  <div class="mcp-view" data-view="home">
+
+  <section class="parallax mcp-hero-scene" aria-labelledby="hero-title">
+    <div class="parallax-layer" data-depth="far" aria-hidden="true"><div class="pattern-grid mcp-hero-grid"></div></div>
+    <div class="parallax-layer" data-depth="mid" aria-hidden="true" style="--parallax-speed:22%">
+      <div class="corner-blob mcp-blob mcp-blob-a"></div>
+      <div class="corner-blob-3 mcp-blob mcp-blob-b"></div>
+    </div>
+    <div class="parallax-content mcp-hero-content">
+      <section class="mk-hero" data-variant="split" data-align="start">
+        <div class="mk-hero-copy">
+          <a class="mk-hero-pill" href="#install"><span class="badge" data-size="sm">v0.6.0</span><span>MIT licensed, for Node.js, Bun and the browser</span><svg class="mcp-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <h1 class="mk-hero-title mcp-display" id="hero-title">TypeScript functions, served as <em>MCP tools</em>.</h1>
+          <p class="mk-hero-desc">Register an object of functions. defuss-mcp publishes them to every Model Context Protocol client over stdio, Express, bunway or any Fetch handler. Agents read named schemas and repair rejected calls, and TypeScript callers get the original types back.</p>
+          <div class="mk-hero-actions">
+            <a class="btn" data-size="lg" href="#demo"><span>Run it in this page</span><svg class="mcp-icon" aria-hidden="true"><use href="#i-arrow-down"/></svg></a>
+            <a class="btn" data-variant="outline" data-size="lg" href="#performance"><svg class="mcp-icon" aria-hidden="true"><use href="#i-chart"/></svg><span>Benchmark</span></a>
+          </div>
+          <div class="mcp-install" data-install>
+            <div class="toggle-group" role="group" data-type="single" data-variant="outline" data-size="sm" aria-label="Package manager">
+              <button type="button" class="toggle" aria-pressed="true" value="bun">bun</button>
+              <button type="button" class="toggle" aria-pressed="false" value="npm">npm</button>
+              <button type="button" class="toggle" aria-pressed="false" value="pnpm">pnpm</button>
+              <button type="button" class="toggle" aria-pressed="false" value="yarn">yarn</button>
+            </div>
+            <div class="mcp-install-line">
+              <div class="mockup-code mcp-code" data-variant="outline" data-chrome="none" data-pm="bun" data-snippet="install-bun"><pre data-prefix="$"><code><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">bun</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">add</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">defuss-mcp</span></code></pre></div>
+              <div class="mockup-code mcp-code" data-variant="outline" data-chrome="none" data-pm="npm" data-snippet="install-npm" hidden><pre data-prefix="$"><code><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">npm</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">install</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">defuss-mcp</span></code></pre></div>
+              <div class="mockup-code mcp-code" data-variant="outline" data-chrome="none" data-pm="pnpm" data-snippet="install-pnpm" hidden><pre data-prefix="$"><code><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">pnpm</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">add</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">defuss-mcp</span></code></pre></div>
+              <div class="mockup-code mcp-code" data-variant="outline" data-chrome="none" data-pm="yarn" data-snippet="install-yarn" hidden><pre data-prefix="$"><code><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">yarn</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">add</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">defuss-mcp</span></code></pre></div>
+              <button type="button" class="btn mcp-copy" data-variant="secondary" data-size="sm" data-copy-install><svg class="mcp-icon" aria-hidden="true"><use href="#i-copy"/></svg><span>Copy</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="mk-hero-media mcp-hero-media">
+          <div class="mcp-hero-window">
+            <div class="mockup-code mcp-code" data-chrome="mac" data-title="server.ts" data-numbers data-snippet="hero" tabindex="0" role="region" aria-label="server.ts"><pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { createMcpApi } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { createMcpHttp } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp/http'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">identity</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { name: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'greeter'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, version: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'1.0.0'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> };</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">functions</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">greet</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">: (</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">name</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">:</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">string</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=&gt;</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Hello, '</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">+</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> name };</span></code></pre>
+<pre><code></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">export</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">api</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">createMcpApi</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(identity, functions, {</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  metadata: { greet: { annotations: { readOnlyHint: </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">true</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> } } },</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">});</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">endpoint</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">createMcpHttp</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(api);</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">Bun.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">serve</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">({ port: </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">3000</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">fetch</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">: (</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">req</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=&gt;</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> endpoint.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">fetch</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(req) });</span></code></pre></div>
+            <p class="mcp-receipt"><span class="mcp-receipt-key">await tools.greet('Ada')</span> <span>"Hello, Ada" : string</span></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="mcp-why" aria-labelledby="why">
+        <h2 class="mcp-why-title" id="why"><a class="heading-anchor" href="#why" aria-label="Link to this section">#</a><span>What you get from one registry</span></h2>
+        <div class="mcp-why-grid">
+          <article class="mcp-why-item">
+            <span class="mcp-why-icon" aria-hidden="true"><svg class="mcp-icon"><use href="#i-function"/></svg></span>
+            <h3>Functions become tools</h3>
+            <p>Pass <code>{ add, greet }</code> to <code>createMcpApi</code>. Object keys are tool names, so bundling and minification never rename a tool.</p>
+          </article>
+          <article class="mcp-why-item">
+            <span class="mcp-why-icon" aria-hidden="true"><svg class="mcp-icon"><use href="#i-wrench"/></svg></span>
+            <h3>Agents repair their own calls</h3>
+            <p>A generated contract turns the signature and JSDoc into named JSON Schema. A rejected argument returns its JSON Pointer and an instruction, not a stack trace.</p>
+          </article>
+          <article class="mcp-why-item">
+            <span class="mcp-why-icon" aria-hidden="true"><svg class="mcp-icon"><use href="#i-binary"/></svg></span>
+            <h3>Bytes and rich values arrive intact</h3>
+            <p>Typed arrays travel as base64 trees, and Maps, BigInts, Dates and cycles use DSON. A plain JSON client still sees ordinary schemas.</p>
+          </article>
+          <article class="mcp-why-item">
+            <span class="mcp-why-icon" aria-hidden="true"><svg class="mcp-icon"><use href="#i-plug"/></svg></span>
+            <h3>One catalog, any host</h3>
+            <p>stdio, Express, bunway and Fetch share one frozen catalog in JSON, SSE or automatic Streamable HTTP reply mode. Your application keeps its listener.</p>
+          </article>
+          <article class="mcp-why-item">
+            <span class="mcp-why-icon" aria-hidden="true"><svg class="mcp-icon"><use href="#i-shield"/></svg></span>
+            <h3>Your guards keep running</h3>
+            <p>Authorization sees every HTTP exchange, and the defuss-rpc bridge re-enters the RPC dispatcher, so method guards also apply to MCP callers.</p>
+          </article>
+          <article class="mcp-why-item">
+            <span class="mcp-why-icon" aria-hidden="true"><svg class="mcp-icon"><use href="#i-bot"/></svg></span>
+            <h3>Hints for the host</h3>
+            <p>Titles and annotations such as <code>readOnlyHint</code> and <code>destructiveHint</code> reach <code>tools/list</code>, where hosts decide whether to ask before a call.</p>
+          </article>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section id="how" class="mcp-section" aria-labelledby="how-title">
+    <header class="mk-section-header">
+      <div class="mk-section-header-copy">
+        <span class="mk-section-header-eyebrow">How it works</span>
+        <h2 class="mk-section-header-title mcp-display" id="how-title"><a class="heading-anchor" href="#how" aria-label="Link to this section">#</a><span>Write a function. Every client can call it.</span></h2>
+        <p class="mk-section-header-desc">The registry freezes its catalog when the first transport starts. Each HTTP request gets its own SDK server with its own headers and cancellation signal, while every request shares the compiled schemas.</p>
+      </div>
+    </header>
+    <figure class="diagram mcp-diagram" data-type="data-flow" aria-label="From functions to MCP clients">
+      <div class="diagram-canvas" style="grid-template-columns:repeat(4,minmax(8rem,1fr));--diagram-node-w:11rem">
+        <div class="diagram-node" data-node="code" data-shape="pill" style="--col:1;--row:2">
+          <span class="diagram-node-name">Your functions</span>
+          <span class="diagram-node-meta">{ add, greet, byteAdd }</span>
+        </div>
+        <div class="diagram-node" data-node="registry" data-tone="accent" style="--col:2;--row:2">
+          <span class="diagram-node-eyebrow">createMcpApi</span>
+          <span class="diagram-node-name">Tool registry</span>
+          <span class="diagram-node-meta">schemas, metadata, hooks</span>
+        </div>
+        <div class="diagram-node" data-node="stdio" style="--col:3;--row:1">
+          <span class="diagram-node-eyebrow">serveMcpStdio</span>
+          <span class="diagram-node-name">Child process</span>
+        </div>
+        <div class="diagram-node" data-node="http" style="--col:3;--row:2">
+          <span class="diagram-node-eyebrow">endpoint.middleware</span>
+          <span class="diagram-node-name">Express, bunway</span>
+        </div>
+        <div class="diagram-node" data-node="fetch" style="--col:3;--row:3">
+          <span class="diagram-node-eyebrow">endpoint.fetch</span>
+          <span class="diagram-node-name">Bun.serve, browser</span>
+        </div>
+        <div class="diagram-node" data-node="clients" data-shape="pill" style="--col:4;--row:2">
+          <span class="diagram-node-name">MCP clients</span>
+          <span class="diagram-node-meta">TypeScript, Python, Go, Inspector</span>
+        </div>
+      </div>
+      <ol class="diagram-edges">
+        <li class="diagram-edge" data-from="code" data-to="registry" data-flow="2400" data-flow-delay="0"></li>
+        <li class="diagram-edge" data-from="registry" data-to="stdio"></li>
+        <li class="diagram-edge" data-from="registry" data-to="http" data-tone="accent" data-flow="2400" data-flow-delay="600"></li>
+        <li class="diagram-edge" data-from="registry" data-to="fetch"></li>
+        <li class="diagram-edge" data-from="clients" data-to="stdio" data-line="dashed"></li>
+        <li class="diagram-edge" data-from="clients" data-to="http" data-tone="accent" data-flow="2400" data-flow-delay="1200"></li>
+        <li class="diagram-edge" data-from="clients" data-to="fetch" data-line="dashed"></li>
+      </ol>
+    </figure>
+    <ol class="mcp-steps">
+      <li class="mcp-step"><span class="mcp-step-n" aria-hidden="true">1</span><div><h3>Register</h3><p>An object of functions, a tuple, or explicit <code>.json</code>, <code>.dson</code> and <code>.binary</code> tools with their own schemas.</p></div></li>
+      <li class="mcp-step"><span class="mcp-step-n" aria-hidden="true">2</span><div><h3>Describe</h3><p><code>bunx defuss-mcp</code> reads exports and JSDoc and writes named schemas that agents can discover.</p></div></li>
+      <li class="mcp-step"><span class="mcp-step-n" aria-hidden="true">3</span><div><h3>Mount</h3><p>Hand the registry to <code>createMcpHttp</code> or <code>serveMcpStdio</code>. Your host keeps its routes, listener and authentication.</p></div></li>
+      <li class="mcp-step"><span class="mcp-step-n" aria-hidden="true">4</span><div><h3>Call</h3><p><code>getMcpClient&lt;typeof api&gt;</code> returns typed functions. Every other MCP client uses the advertised schemas.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="demo" class="mcp-section" aria-labelledby="demo-title">
+    <header class="mk-section-header" data-align="center">
+      <div class="mk-section-header-copy">
+        <span class="mk-section-header-eyebrow">Live demo</span>
+        <h2 class="mk-section-header-title mcp-display" id="demo-title"><a class="heading-anchor" href="#demo" aria-label="Link to this section">#</a><span>An MCP server running in this tab</span></h2>
+        <p class="mk-section-header-desc">This page imports the published build, registers four tools and connects the official MCP TypeScript client to <code>endpoint.fetch</code>. Every exchange below is real Streamable HTTP; it never leaves your browser.</p>
+      </div>
+    </header>
+    <div class="mcp-window card" data-demo>
+      <p class="mcp-status" data-demo-status role="status">The demo starts when it scrolls into view.</p>
+      <div class="tabs mcp-tabs">
+        <div class="tab-list" role="tablist" aria-label="Demo">
+          <button class="tab-trigger" role="tab" aria-selected="true" aria-controls="panel-call" id="tab-call"><svg class="mcp-icon" aria-hidden="true"><use href="#i-list"/></svg>Discover and call</button>
+          <button class="tab-trigger" role="tab" aria-selected="false" aria-controls="panel-repair" id="tab-repair" tabindex="-1"><svg class="mcp-icon" aria-hidden="true"><use href="#i-wrench"/></svg>Agent correction</button>
+          <button class="tab-trigger" role="tab" aria-selected="false" aria-controls="panel-typed" id="tab-typed" tabindex="-1"><svg class="mcp-icon" aria-hidden="true"><use href="#i-function"/></svg>Typed client</button>
+        </div>
+        <div class="tab-content" role="tabpanel" id="panel-call" aria-labelledby="tab-call" tabindex="0">
+          <div class="mcp-demo-grid">
+            <div class="mcp-demo-side">
+              <h3 class="mcp-demo-title">tools/list</h3>
+              <p class="mcp-demo-text">The catalog a stock MCP client receives. Pick a tool, edit its arguments as JSON and send <code>tools/call</code>.</p>
+              <ul class="mcp-tools" data-tool-list aria-label="Tools"></ul>
+            </div>
+            <div class="mcp-demo-main">
+              <label class="label" for="demo-args">Arguments for <code data-tool-name>…</code></label>
+              <textarea class="textarea mcp-json" id="demo-args" rows="4" spellcheck="false" data-args></textarea>
+              <div class="mcp-row"><button type="button" class="btn" data-call disabled><svg class="mcp-icon" aria-hidden="true"><use href="#i-play"/></svg>Call the tool</button><span class="mcp-hint" data-call-meta></span></div>
+              <pre class="mcp-output" data-call-output aria-live="polite" aria-label="Tool result"></pre>
+              <details class="mcp-schema"><summary>Input schema</summary><pre class="mcp-output" data-schema></pre></details>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content" role="tabpanel" id="panel-repair" aria-labelledby="tab-repair" tabindex="0" hidden>
+          <div class="mcp-demo-grid">
+            <div class="mcp-demo-side">
+              <h3 class="mcp-demo-title">A rejected call, then a repaired one</h3>
+              <p class="mcp-demo-text"><code>byteAdd(a: Uint8Array, b: Uint8Array)</code> carries a generated contract: two named base64 fields. The agent sends an invalid second operand. The tool error names the field and the fix, and the agent applies it on the same connection.</p>
+              <div class="mcp-row">
+                <button type="button" class="btn" data-repair-send disabled><svg class="mcp-icon" aria-hidden="true"><use href="#i-bot"/></svg>Send the agent's call</button>
+                <button type="button" class="btn" data-variant="outline" data-repair-fix disabled><svg class="mcp-icon" aria-hidden="true"><use href="#i-wrench"/></svg>Apply the correction</button>
+              </div>
+            </div>
+            <div class="mcp-demo-main">
+              <ol class="mcp-transcript" data-transcript aria-live="polite" aria-label="Agent transcript"></ol>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content" role="tabpanel" id="panel-typed" aria-labelledby="tab-typed" tabindex="0" hidden>
+          <div class="mcp-demo-grid">
+            <div class="mcp-demo-side">
+              <h3 class="mcp-demo-title">The original types come back</h3>
+              <p class="mcp-demo-text">The typed facade negotiates the compact binary codec and falls back to DSON for rich graphs. A <code>Uint8Array</code> returns as a <code>Uint8Array</code>, and a <code>Map</code> as a <code>Map</code>.</p>
+              <button type="button" class="btn" data-typed disabled><svg class="mcp-icon" aria-hidden="true"><use href="#i-play"/></svg>Run the typed calls</button>
+            </div>
+            <div class="mcp-demo-main">
+              <div class="mockup-code mcp-code mcp-code-small" data-variant="outline" data-chrome="none" data-wrap data-snippet="typed"><pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">tools</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">await</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">getMcpClient</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">&lt;</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">typeof</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> api&gt;(sdk);</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">await</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> tools.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">add</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">2</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">3</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">);                                   </span><span style="--shiki-light:#66707B;--shiki-dark:#BDC4CC">// 5</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">await</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> tools.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">byteAdd</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(Uint8Array.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">of</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">1</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">2</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">), Uint8Array.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">of</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">3</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">4</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">)); </span><span style="--shiki-light:#66707B;--shiki-dark:#BDC4CC">// Uint8Array [4, 6]</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">await</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> tools.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">tally</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">([</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'mcp'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'dson'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'mcp'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">]);               </span><span style="--shiki-light:#66707B;--shiki-dark:#BDC4CC">// Map { mcp =&gt; 2, dson =&gt; 1 }</span></code></pre></div>
+              <pre class="mcp-output" data-typed-output aria-live="polite" aria-label="Typed results"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mcp-wire">
+        <h3 class="mcp-demo-title">Wire log</h3>
+        <div class="table-container"><table class="table mcp-wire-table">
+          <caption class="table-caption sr-only">HTTP exchanges between the SDK client and the endpoint in this page</caption>
+          <thead><tr class="table-row"><th class="table-head" scope="col">#</th><th class="table-head" scope="col">JSON-RPC</th><th class="table-head" scope="col">Status</th><th class="table-head" scope="col">Reply</th><th class="table-head mcp-num" scope="col">Bytes in, out</th><th class="table-head mcp-num" scope="col">ms</th></tr></thead>
+          <tbody data-wire></tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="clients" class="mcp-section" aria-labelledby="clients-title">
+    <header class="mk-section-header">
+      <div class="mk-section-header-copy">
+        <span class="mk-section-header-eyebrow">Tested clients</span>
+        <h2 class="mk-section-header-title mcp-display" id="clients-title"><a class="heading-anchor" href="#clients" aria-label="Link to this section">#</a><span>Cross-runtime and client test-matrix</span></h2>
+        <p class="mk-section-header-desc">Before a release, <code>make e2e</code> installs the tarball into an empty project and starts real server processes. Each official client discovers a byte tool, repairs a rejected field and calls the guarded RPC bridge, in every reply mode. A missing or failed cell fails the build.</p>
+      </div>
+    </header>
+    <div class="table-container mcp-matrix" tabindex="0" role="region" aria-label="Client matrix">
+      <table class="table"><caption class="table-caption">Passed cells per client and server; HTTP cells cover the JSON, SSE and automatic reply modes in each protocol era.</caption><thead><tr class="table-row"><th class="table-head" scope="col">Client</th><th class="table-head mcp-num" scope="col">Node, Express</th><th class="table-head mcp-num" scope="col">Bun, Express</th><th class="table-head mcp-num" scope="col">Bun, bunway</th><th class="table-head mcp-num" scope="col">Bun, Fetch</th><th class="table-head mcp-num" scope="col">Node, stdio</th><th class="table-head mcp-num" scope="col">Bun, stdio</th></tr></thead><tbody><tr class="table-row"><th class="table-cell" scope="row">TypeScript SDK on Node.js</th><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>2</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>2</span></td></tr><tr class="table-row"><th class="table-cell" scope="row">TypeScript SDK on Bun</th><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>2</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>2</span></td></tr><tr class="table-row"><th class="table-cell" scope="row">Python SDK</th><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>6</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>2</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>2</span></td></tr><tr class="table-row"><th class="table-cell" scope="row">Go SDK</th><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>3</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>3</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>3</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>3</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>1</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>1</span></td></tr><tr class="table-row"><th class="table-cell" scope="row">MCP Inspector CLI</th><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>3</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>3</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>3</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>3</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>1</span></td><td class="table-cell mcp-num"><span class="mcp-pass"><svg class="mcp-icon" aria-hidden="true"><use href="#i-check"/></svg>1</span></td></tr></tbody></table>
+    </div>
+    <p class="mcp-note">Measured with Node.js 24.22.3, Bun 1.4.5, Python 3.12.15 (MCP SDK 2.3.0), Go 1.27.4 (MCP SDK v1.8.0), MCP Inspector 2.16.0 and the TypeScript SDK 2.4.0 on Apple M5 Max, tarball sha256 <code>1417c6d1d467</code>.</p>
+  </section>
+
+  <section id="performance" class="mcp-section" aria-labelledby="performance-title">
+    <header class="mk-section-header">
+      <div class="mk-section-header-copy">
+        <span class="mk-section-header-eyebrow">Performance</span>
+        <h2 class="mk-section-header-title mcp-display" id="performance-title"><a class="heading-anchor" href="#performance" aria-label="Link to this section">#</a><span>Measured in bench</span></h2>
+        <p class="mk-section-header-desc">Every figure comes from <code>make bench</code> for v0.6.0 on one Apple M5 Max with other work running (load average 7.5). Clients and servers run in separate processes over loopback.</p>
+      </div>
+    </header>
+    <div class="mcp-charts">
+      <figure class="card mcp-chart-card">
+        <h3 class="mcp-chart-title">Latency per call, Bun client</h3>
+        <p class="mcp-chart-dek">Median of serial calls in milliseconds; shorter is faster. The MCP bar calls a registered function with a JSON reply, the RPC bar calls the same function through defuss-rpc on the same listener.</p>
+        <div class="mcp-legend" aria-hidden="true"><span class="mcp-legend-item"><span class="mcp-swatch" data-series="0"></span>MCP function call</span><span class="mcp-legend-item"><span class="mcp-swatch" data-series="1"></span>defuss-rpc call</span></div><div class="mcp-bars" role="list" aria-label="Median latency per call by server and transport"><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Node, Express</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:100.0%"></span><span class="mcp-bar-value">0.106 ms</span></span><span class="mcp-bar-track"><span class="mcp-bar" data-series="1" style="--w:76.9%"></span><span class="mcp-bar-value">0.081 ms</span></span></span></div><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Bun, Express</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:97.3%"></span><span class="mcp-bar-value">0.103 ms</span></span><span class="mcp-bar-track"><span class="mcp-bar" data-series="1" style="--w:63.6%"></span><span class="mcp-bar-value">0.067 ms</span></span></span></div><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Bun, bunway</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:67.8%"></span><span class="mcp-bar-value">0.072 ms</span></span><span class="mcp-bar-track"><span class="mcp-bar" data-series="1" style="--w:48.3%"></span><span class="mcp-bar-value">0.051 ms</span></span></span></div><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Bun, Fetch</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:65.9%"></span><span class="mcp-bar-value">0.070 ms</span></span><span class="mcp-bar-track"><span class="mcp-bar" data-series="1" style="--w:45.2%"></span><span class="mcp-bar-value">0.048 ms</span></span></span></div><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Node, stdio</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:31.4%"></span><span class="mcp-bar-value">0.033 ms</span></span></span></div><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Bun, stdio</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:26.9%"></span><span class="mcp-bar-value">0.028 ms</span></span></span></div></div><details class="mcp-chart-data"><summary>Data</summary><table class="table"><thead><tr class="table-row"><th class="table-head" scope="col">Case</th><th class="table-head mcp-num" scope="col">MCP function call</th><th class="table-head mcp-num" scope="col">defuss-rpc call</th></tr></thead><tbody><tr class="table-row"><th class="table-cell" scope="row">Node, Express</th><td class="table-cell mcp-num">0.106 ms</td><td class="table-cell mcp-num">0.081 ms</td></tr><tr class="table-row"><th class="table-cell" scope="row">Bun, Express</th><td class="table-cell mcp-num">0.103 ms</td><td class="table-cell mcp-num">0.067 ms</td></tr><tr class="table-row"><th class="table-cell" scope="row">Bun, bunway</th><td class="table-cell mcp-num">0.072 ms</td><td class="table-cell mcp-num">0.051 ms</td></tr><tr class="table-row"><th class="table-cell" scope="row">Bun, Fetch</th><td class="table-cell mcp-num">0.070 ms</td><td class="table-cell mcp-num">0.048 ms</td></tr><tr class="table-row"><th class="table-cell" scope="row">Node, stdio</th><td class="table-cell mcp-num">0.033 ms</td><td class="table-cell mcp-num"></td></tr><tr class="table-row"><th class="table-cell" scope="row">Bun, stdio</th><td class="table-cell mcp-num">0.028 ms</td><td class="table-cell mcp-num"></td></tr></tbody></table></details>
+      </figure>
+      <figure class="card mcp-chart-card">
+        <h3 class="mcp-chart-title">64 KiB binary echo, Node over Express</h3>
+        <p class="mcp-chart-dek">Payload MiB per second in both directions with eight calls in flight; longer is faster.</p>
+        <div class="mcp-legend" aria-hidden="true"><span class="mcp-legend-item"><span class="mcp-swatch" data-series="0"></span>Payload MiB/s, eight in flight</span></div><div class="mcp-bars" role="list" aria-label="64 KiB binary echo throughput by codec"><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Typed client, compact</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:100.0%"></span><span class="mcp-bar-value">214 MiB/s</span></span></span></div><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Binary tool, base64</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:60.8%"></span><span class="mcp-bar-value">130 MiB/s</span></span></span></div><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Typed client, DSON</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:12.5%"></span><span class="mcp-bar-value">27 MiB/s</span></span></span></div><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">defuss-rpc, DSON</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:14.3%"></span><span class="mcp-bar-value">31 MiB/s</span></span></span></div></div><details class="mcp-chart-data"><summary>Data</summary><table class="table"><thead><tr class="table-row"><th class="table-head" scope="col">Case</th><th class="table-head mcp-num" scope="col">Payload MiB/s, eight in flight</th></tr></thead><tbody><tr class="table-row"><th class="table-cell" scope="row">Typed client, compact</th><td class="table-cell mcp-num">214 MiB/s</td></tr><tr class="table-row"><th class="table-cell" scope="row">Binary tool, base64</th><td class="table-cell mcp-num">130 MiB/s</td></tr><tr class="table-row"><th class="table-cell" scope="row">Typed client, DSON</th><td class="table-cell mcp-num">27 MiB/s</td></tr><tr class="table-row"><th class="table-cell" scope="row">defuss-rpc, DSON</th><td class="table-cell mcp-num">31 MiB/s</td></tr></tbody></table></details>
+      </figure>
+      <figure class="card mcp-chart-card">
+        <h3 class="mcp-chart-title">Fresh process: import index and HTTP entries</h3>
+        <p class="mcp-chart-dek">Median milliseconds over eight alternating rounds against v0.4.0; shorter is faster. A Fetch host loads no Node adapter.</p>
+        <div class="mcp-legend" aria-hidden="true"><span class="mcp-legend-item"><span class="mcp-swatch" data-series="0"></span>v0.6.0</span><span class="mcp-legend-item"><span class="mcp-swatch" data-series="1"></span>v0.4.0</span></div><div class="mcp-bars" role="list" aria-label="Fresh process import time by runtime and release"><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Node.js</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:77.2%"></span><span class="mcp-bar-value">38.9 ms</span></span><span class="mcp-bar-track"><span class="mcp-bar" data-series="1" style="--w:100.0%"></span><span class="mcp-bar-value">50.4 ms</span></span></span></div><div class="mcp-bar-group" role="listitem"><span class="mcp-bar-label">Bun</span><span class="mcp-bar-rows"><span class="mcp-bar-track"><span class="mcp-bar" data-series="0" style="--w:61.8%"></span><span class="mcp-bar-value">31.2 ms</span></span><span class="mcp-bar-track"><span class="mcp-bar" data-series="1" style="--w:87.2%"></span><span class="mcp-bar-value">43.9 ms</span></span></span></div></div><details class="mcp-chart-data"><summary>Data</summary><table class="table"><thead><tr class="table-row"><th class="table-head" scope="col">Case</th><th class="table-head mcp-num" scope="col">v0.6.0</th><th class="table-head mcp-num" scope="col">v0.4.0</th></tr></thead><tbody><tr class="table-row"><th class="table-cell" scope="row">Node.js</th><td class="table-cell mcp-num">38.9 ms</td><td class="table-cell mcp-num">50.4 ms</td></tr><tr class="table-row"><th class="table-cell" scope="row">Bun</th><td class="table-cell mcp-num">31.2 ms</td><td class="table-cell mcp-num">43.9 ms</td></tr></tbody></table></details>
+      </figure>
+    </div>
+    <p class="mcp-note">The raw samples, the full matrix and the paired release comparison ship in the release archive under <code>validation/</code>. The <a class="link" href="https://github.com/kyr0/defuss-mcp/blob/main/docs/VERIFICATION.md">verification notes</a> describe sampling and limits.</p>
+  </section>
+
+  <section id="install" class="mcp-section" aria-labelledby="install-title">
+    <header class="mk-section-header">
+      <div class="mk-section-header-copy">
+        <span class="mk-section-header-eyebrow">Install</span>
+        <h2 class="mk-section-header-title mcp-display" id="install-title"><a class="heading-anchor" href="#install" aria-label="Link to this section">#</a><span>Pick a transport layer</span></h2>
+        <p class="mk-section-header-desc">ESM, CommonJS and TypeScript declarations for Node.js 22.19 or newer and Bun. Five runtime dependencies: the official MCP server SDK and its Node adapter, Ajv with its formats, and defuss-dson.</p>
+      </div>
+    </header>
+    <div class="tabs mcp-use">
+      <div class="tab-list" role="tablist" aria-label="Examples">
+        <button class="tab-trigger" role="tab" aria-selected="true" aria-controls="use-fetch" id="use-tab-fetch">Bun.serve</button>
+        <button class="tab-trigger" role="tab" aria-selected="false" aria-controls="use-express" id="use-tab-express" tabindex="-1">Express</button>
+        <button class="tab-trigger" role="tab" aria-selected="false" aria-controls="use-stdio" id="use-tab-stdio" tabindex="-1">stdio</button>
+        <button class="tab-trigger" role="tab" aria-selected="false" aria-controls="use-contract" id="use-tab-contract" tabindex="-1">Contracts</button>
+        <button class="tab-trigger" role="tab" aria-selected="false" aria-controls="use-agent" id="use-tab-agent" tabindex="-1">For agents</button>
+      </div>
+      <div class="tab-content" role="tabpanel" id="use-fetch" aria-labelledby="use-tab-fetch" tabindex="0">
+        <p class="mcp-use-text">A Fetch handler serves Streamable HTTP. The same endpoint works in any router that passes a <code>Request</code>.</p>
+        <div class="mockup-code mcp-code" data-chrome="mac" data-title="server.ts" data-numbers data-snippet="fetch"><pre><code><span style="--shiki-light:#66707B;--shiki-dark:#BDC4CC">// server.ts, run with: bun server.ts</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { createMcpApi } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { createMcpHttp } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp/http'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">export</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">api</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">createMcpApi</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  { name: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'greeter'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, version: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'1.0.0'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> },</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  { </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">greet</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">name</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">:</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">string</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) { </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">return</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Hello, '</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">+</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> name; } },</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  { metadata: { greet: { title: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Greet'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, annotations: { readOnlyHint: </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">true</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> } } } },</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">);</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">endpoint</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">createMcpHttp</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(api);</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">Bun.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">serve</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">({ hostname: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'127.0.0.1'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, port: </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">3000</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">fetch</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">: (</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">request</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=&gt;</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> endpoint.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">fetch</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(request) });</span></code></pre>
+<pre><code></code></pre>
+<pre><code><span style="--shiki-light:#66707B;--shiki-dark:#BDC4CC">// client.ts: the official SDK client with typed functions</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { Client, StreamableHTTPClientTransport } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'@modelcontextprotocol/client'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { getMcpClient } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp/client'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">type</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { api } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'./server.ts'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">sdk</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">new</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">Client</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">({ name: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'caller'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, version: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'1.0.0'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> });</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">await</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> sdk.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">connect</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">new</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">StreamableHTTPClientTransport</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">new</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">URL</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'http://127.0.0.1:3000/mcp'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">)));</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">tools</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">await</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">getMcpClient</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">&lt;</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">typeof</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> api&gt;(sdk);</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">console.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">log</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">await</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> tools.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">greet</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Ada'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">)); </span><span style="--shiki-light:#66707B;--shiki-dark:#BDC4CC">// "Hello, Ada", typed as string</span></code></pre></div>
+      </div>
+      <div class="tab-content" role="tabpanel" id="use-express" aria-labelledby="use-tab-express" tabindex="0" hidden>
+        <p class="mcp-use-text">Mount the endpoint on your route. <code>authorize</code> sees every exchange, including discovery; validation returns corrections instead of running the handler.</p>
+        <div class="mockup-code mcp-code" data-chrome="mac" data-title="express.ts" data-numbers data-snippet="express"><pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> express </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'express'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { createMcpApi } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { createMcpHttp } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp/http'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { ajvValidator } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp/validation'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">tools</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">createMcpApi</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">({ name: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'arithmetic'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, version: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'1.0.0'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> }, { compile: </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">ajvValidator</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">() });</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">tools.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">json</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">&lt;{ </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">a</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">:</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">number</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">; </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">b</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">:</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">number</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> }&gt;(</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'add'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, {</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  type: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'object'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">,</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  properties: { a: { type: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'number'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> }, b: { type: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'number'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> } },</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  required: [</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'a'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'b'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">],</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  additionalProperties: </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">false</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">,</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">}, ({ </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">a</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">b</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> }) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=&gt;</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> a </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">+</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> b, { description: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Add two numbers.'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, annotations: { readOnlyHint: </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">true</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> } });</span></code></pre>
+<pre><code></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">token</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> process.env.</span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">MCP_API_TOKEN</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">if</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> (</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">!</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">token) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">throw</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">new</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">Error</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Set MCP_API_TOKEN before starting the server.'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">);</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">endpoint</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">createMcpHttp</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(tools, {</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">authorize</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">: (</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">request</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=&gt;</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> request.headers.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">get</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'authorization'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">===</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Bearer '</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">+</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> token,</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">});</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">app</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">express</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">();</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">app.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">all</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'/mcp'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, endpoint.middleware);</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">app.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">listen</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">3000</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'127.0.0.1'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">);</span></code></pre></div>
+      </div>
+      <div class="tab-content" role="tabpanel" id="use-stdio" aria-labelledby="use-tab-stdio" tabindex="0" hidden>
+        <p class="mcp-use-text">A desktop host launches the server as a child process and speaks MCP over its pipes. Keep stdout for the protocol and log to stderr.</p>
+        <div class="mockup-code mcp-code" data-chrome="mac" data-title="stdio.ts" data-numbers data-snippet="stdio"><pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { createMcpApi } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { serveMcpStdio } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp/stdio'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">notes</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> [</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Ship the release'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Review the client matrix'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">];</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">api</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">createMcpApi</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">({ name: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'notes'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, version: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'1.0.0'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> }, {</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">search</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">query</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">:</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">string</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">limit</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">10</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) { </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">return</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> notes.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">filter</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">((</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">note</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=&gt;</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> note.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">includes</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(query)).</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">slice</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">0</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, limit); },</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">});</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">api.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">observeCalls</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">((</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">event</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=&gt;</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> {</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  process.stderr.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">write</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">JSON</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">stringify</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">({ time: </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">new</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">Date</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">().</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">toISOString</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(), level: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'info'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">...</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">event }) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">+</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">\n</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">);</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">});</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">handle</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">await</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">serveMcpStdio</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(api);</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">process.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">once</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'SIGTERM'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, () </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=&gt;</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">void</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> handle.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">close</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">());</span></code></pre></div>
+      </div>
+      <div class="tab-content" role="tabpanel" id="use-contract" aria-labelledby="use-tab-contract" tabindex="0" hidden>
+        <p class="mcp-use-text">The contract generator reads exports, imported interfaces and JSDoc, and writes a binding module next to the source. <code>--check</code> fails CI on stale output.</p>
+        <div class="mockup-code mcp-code" data-variant="outline" data-chrome="none" data-snippet="contracts"><pre data-prefix="$"><code><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">bunx</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">defuss-mcp</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">--entry</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">src/math.ts</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">--out</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">src/math.mcp.ts</span></code></pre></div>
+        <div class="mockup-code mcp-code" data-chrome="mac" data-title="math.ts" data-numbers data-snippet="contract-source"><pre><code><span style="--shiki-light:#66707B;--shiki-dark:#BDC4CC">// math.ts</span></code></pre>
+<pre><code><span style="--shiki-light:#66707B;--shiki-dark:#BDC4CC">/** Add equal-length byte arrays elementwise, modulo 256. */</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">export</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">function</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">add</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">a</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">:</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">Uint8Array</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">b</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">:</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">Uint8Array</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">)</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">:</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">Uint8Array</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> {</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">if</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> (a.</span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">length</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">!==</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> b.</span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">length</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">throw</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">new</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">RangeError</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">(</span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'Expected equal lengths.'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">);</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">  </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">return</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> a.</span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">map</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">((</span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">value</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, </span><span style="--shiki-light:#702C00;--shiki-dark:#FFB757">i</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">) </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=&gt;</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> value </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">+</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> b[i]</span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">!</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">);</span></code></pre>
+<pre><code><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">}</span></code></pre>
+<pre><code></code></pre>
+<pre><code><span style="--shiki-light:#66707B;--shiki-dark:#BDC4CC">// server.ts: a stock client now sees { a: base64, b: base64 } and gets corrections at /a or /b</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { createMcpApi } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'defuss-mcp'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">import</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> { add } </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">from</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'./math.mcp.js'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">;</span></code></pre>
+<pre><code><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">export</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">const</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#023B95;--shiki-dark:#91CBFF">api</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#A0111F;--shiki-dark:#FF9492">=</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> </span><span style="--shiki-light:#622CBC;--shiki-dark:#DBB7FF">createMcpApi</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">({ name: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'math'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6">, version: </span><span style="--shiki-light:#032563;--shiki-dark:#ADDCFF">'1'</span><span style="--shiki-light:#0E1116;--shiki-dark:#F0F3F6"> }, { add });</span></code></pre></div>
+      </div>
+      <div class="tab-content" role="tabpanel" id="use-agent" aria-labelledby="use-tab-agent" tabindex="0" hidden>
+        <p class="mcp-use-text">Coding agents can read <a class="link" href="./llms.txt">llms.txt</a>: the API, the wire contracts and runnable examples in one plain-text file. Paste this prompt into your agent:</p>
+        <div class="mockup-code mcp-code" data-variant="outline" data-chrome="none" data-wrap data-prompt>
+          <pre data-prefix=">"><code>Read https://mcp.defuss.org/llms.txt. Expose the functions in src/tools.ts as MCP tools with defuss-mcp: use createMcpApi with readOnlyHint metadata for functions that do not write, mount createMcpHttp on our existing router, and add a test that calls each tool through the official MCP client.</code></pre>
+        </div>
+        <button type="button" class="btn mcp-copy" data-variant="secondary" data-size="sm" data-copy-prompt><svg class="mcp-icon" aria-hidden="true"><use href="#i-copy"/></svg><span>Copy the prompt</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="api" class="mcp-section" aria-labelledby="api-title">
+    <header class="mk-section-header">
+      <div class="mk-section-header-copy">
+        <span class="mk-section-header-eyebrow">API</span>
+        <h2 class="mk-section-header-title mcp-display" id="api-title"><a class="heading-anchor" href="#api" aria-label="Link to this section">#</a><span>One small API covers every MCP protocol</span></h2>
+        <p class="mk-section-header-desc">The same registry answers the two newest MCP revisions: 2026-07-28, which clients find through <code>server/discover</code>, and 2025-11-25 with its <code>initialize</code> handshake. It serves them over stdio and Streamable HTTP, with JSON, SSE or automatic replies. With automatic negotiation, the official TypeScript client selects 2026-07-28.</p>
+      </div>
+    </header>
+    <div class="table-container mcp-api-table">
+      <table class="table">
+        <thead><tr class="table-row"><th class="table-head" scope="col">Import</th><th class="table-head" scope="col">Call</th><th class="table-head" scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr class="table-row"><td class="table-cell"><code>defuss-mcp</code></td><td class="table-cell"><code>createMcpApi(identity, functions, options)</code></td><td class="table-cell">Registers an object or tuple of functions; options set the schema compiler, the error sink and per-tool metadata.</td></tr>
+          <tr class="table-row"><td class="table-cell"><code>defuss-mcp</code></td><td class="table-cell"><code>.json</code>, <code>.dson</code>, <code>.binary</code>, <code>.group</code></td><td class="table-cell">Adds tools with a hand-written schema, a DSON graph, base64 bytes, or a staged batch that publishes atomically.</td></tr>
+          <tr class="table-row"><td class="table-cell"><code>defuss-mcp</code></td><td class="table-cell"><code>.observeCalls</code>, <code>.processCalls</code></td><td class="table-cell">Receives start and finish events with durations, or transforms decoded inputs and results.</td></tr>
+          <tr class="table-row"><td class="table-cell"><code>defuss-mcp/http</code></td><td class="table-cell"><code>createMcpHttp(registry, options)</code></td><td class="table-cell">Returns <code>fetch</code>, <code>middleware</code> and <code>close</code> with host, origin, size and authorization checks.</td></tr>
+          <tr class="table-row"><td class="table-cell"><code>defuss-mcp/stdio</code></td><td class="table-cell"><code>serveMcpStdio(registry, options?)</code></td><td class="table-cell">Serves the catalog on the process pipes of a child launched by the client. Reads stdin in linear time; <code>maxMessageBytes</code> bounds one message.</td></tr>
+          <tr class="table-row"><td class="table-cell"><code>defuss-mcp/client</code></td><td class="table-cell"><code>getMcpClient&lt;typeof api&gt;(sdk)</code></td><td class="table-cell">Discovers the catalog once and returns typed remote functions over your connected SDK client.</td></tr>
+          <tr class="table-row"><td class="table-cell"><code>defuss-mcp/validation</code></td><td class="table-cell"><code>ajvValidator()</code></td><td class="table-cell">Compiles JSON Schema 2020-12 and draft-07 with formats; failures become pointer-based corrections.</td></tr>
+          <tr class="table-row"><td class="table-cell"><code>defuss-mcp/rpc</code></td><td class="table-cell"><code>exposeRpc(registry, rpcRoute, options)</code></td><td class="table-cell">Publishes defuss-rpc methods as <code>Namespace.method</code> tools and dispatches through the RPC route and its guards.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="mcp-section">
+    <section class="mk-cta" data-variant="dark" aria-labelledby="cta-title">
+      <div class="mk-cta-inner">
+        <div class="mk-cta-copy">
+          <h2 class="mk-cta-title" id="cta-title">Give your agents access to all services</h2>
+          <p class="mk-cta-desc">Read the source, the architecture notes and the verification evidence, or hand llms.txt to your coding agent.</p>
+        </div>
+        <div class="mk-cta-actions">
+          <a class="btn" data-size="lg" href="https://github.com/kyr0/defuss-mcp" target="_blank" rel="noopener"><svg class="mcp-icon" aria-hidden="true"><use href="#i-github"/></svg><span>Source on GitHub</span><svg class="mcp-icon mcp-ext" aria-hidden="true"><use href="#i-external"/></svg></a>
+          <a class="btn" data-variant="outline" data-size="lg" href="./llms.txt"><svg class="mcp-icon" aria-hidden="true"><use href="#i-file"/></svg><span>llms.txt</span></a>
+        </div>
+      </div>
+    </section>
+  </div>
+  </div>
+
+  <div class="mcp-view" data-view="missing" hidden>
+    <section class="mk-empty-state mcp-missing" aria-labelledby="missing-title">
+      <span class="mk-empty-state-icon" aria-hidden="true"><svg class="mcp-icon"><use href="#i-file"/></svg></span>
+      <h1 class="mk-empty-state-title" id="missing-title">This page does not exist</h1>
+      <p class="mk-empty-state-text">The link may be old. The home page has the demo, the client matrix and the install steps.</p>
+      <div class="mk-empty-state-actions"><a class="btn" href="/">Go to the home page</a></div>
+    </section>
+  </div>
+  </main>
+
+  <footer class="mk-footer mcp-footer">
+    <div class="mk-footer-inner">
+      <nav class="mk-footer-nav mcp-footer-nav" aria-label="Footer">
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Project</h3>
+          <ul class="mk-footer-list">
+            <li><a href="https://github.com/kyr0/defuss-mcp">Source code</a></li>
+            <li><a href="https://github.com/kyr0/defuss-mcp/blob/main/README.md">README</a></li>
+            <li><a href="./llms.txt">llms.txt</a></li>
+          </ul>
+        </div>
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Design and evidence</h3>
+          <ul class="mk-footer-list">
+            <li><a href="https://github.com/kyr0/defuss-mcp/blob/main/ARCH.md">Architecture</a></li>
+            <li><a href="https://github.com/kyr0/defuss-mcp/blob/main/docs/VERIFICATION.md">Verification</a></li>
+            <li><a href="https://github.com/kyr0/defuss-mcp/blob/main/docs/CLIENTS.md">Client examples</a></li>
+          </ul>
+        </div>
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Protocol</h3>
+          <ul class="mk-footer-list">
+            <li><a href="https://modelcontextprotocol.io">Model Context Protocol</a></li>
+          </ul>
+        </div>
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Author</h3>
+          <aside class="corner-leaf mcp-author" aria-label="About the author, Aron Homberg">
+            <div class="mcp-author-head">
+              <div class="aura aura-glow aura-gold mcp-author-portrait" style="--shape-round:1.5rem"><img class="shape-squircle" src="./aron-homberg.jpg" width="400" height="400" loading="lazy" alt="Portrait of Aron Homberg"></div>
+              <div>
+                <p class="mcp-author-name">Aron Homberg</p>
+                <p class="mcp-author-role">Freelance AI and web tech expert</p>
+              </div>
+            </div>
+            <a class="btn" data-size="sm" href="https://www.linkedin.com/in/aronhomberg/" target="_blank" rel="noopener"><svg class="mcp-icon mcp-icon-fill" aria-hidden="true"><use href="#i-linkedin"/></svg><span>Connect on LinkedIn</span><svg class="mcp-icon mcp-ext" aria-hidden="true"><use href="#i-external"/></svg></a>
+          </aside>
+        </div>
+      </nav>
+      <hr class="separator mk-footer-rule">
+      <div class="mk-footer-bottom">
+        <a href="./" class="mk-footer-brand" aria-label="defuss-mcp home"><svg class="mcp-logo" aria-hidden="true"><use href="#i-logo"/></svg><span class="mk-footer-brand-name">defuss-mcp</span></a>
+        <div class="mk-footer-meta"><p class="mk-footer-copy">Copyright 2026 <a href="https://www.linkedin.com/in/aronhomberg/" target="_blank" rel="noopener">Aron Homberg (kyr0)</a>. Code under the MIT license.</p></div>
+      </div>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

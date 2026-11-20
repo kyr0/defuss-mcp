@@ -1,0 +1,125 @@
+{
+  "name": "defuss-mcp",
+  "version": "0.6.0",
+  "description": "Expose TypeScript functions directly over MCP on stdio, Express, bunway and Fetch.",
+  "author": "Aron Homberg",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "packageManager": "bun@1.4.5",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "ARCH.md",
+    "docs/*.md",
+    "LICENSE",
+    "examples",
+    "src",
+    "bin"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./http": {
+      "import": {
+        "types": "./dist/http.d.mts",
+        "default": "./dist/http.mjs"
+      },
+      "require": {
+        "types": "./dist/http.d.cts",
+        "default": "./dist/http.cjs"
+      }
+    },
+    "./stdio": {
+      "import": {
+        "types": "./dist/stdio.d.mts",
+        "default": "./dist/stdio.mjs"
+      },
+      "require": {
+        "types": "./dist/stdio.d.cts",
+        "default": "./dist/stdio.cjs"
+      }
+    },
+    "./validation": {
+      "import": {
+        "types": "./dist/validation.d.mts",
+        "default": "./dist/validation.mjs"
+      },
+      "require": {
+        "types": "./dist/validation.d.cts",
+        "default": "./dist/validation.cjs"
+      }
+    },
+    "./rpc": {
+      "import": {
+        "types": "./dist/rpc.d.mts",
+        "default": "./dist/rpc.mjs"
+      },
+      "require": {
+        "types": "./dist/rpc.d.cts",
+        "default": "./dist/rpc.cjs"
+      }
+    },
+    "./client": {
+      "import": {
+        "types": "./dist/client.d.mts",
+        "default": "./dist/client.mjs"
+      },
+      "require": {
+        "types": "./dist/client.d.cts",
+        "default": "./dist/client.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "pkgroll --clean-dist",
+    "lint": "tsc --noEmit && tsc -p examples && tsc -p scripts && oxlint --deny-warnings src tests scripts examples bin",
+    "test": "bun test ./tests",
+    "coverage": "vitest run --coverage",
+    "prepublishOnly": "make verify"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/node": "2.1.2",
+    "@modelcontextprotocol/server": "2.4.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "defuss-dson": "1.5.1"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
+    "@modelcontextprotocol/inspector": "2.16.0",
+    "@types/express": "5.0.6",
+    "@types/node": "24.10.0",
+    "@vitest/coverage-v8": "4.1.12",
+    "bunway": "1.1.0",
+    "defuss-rpc": "2.0.0",
+    "express": "5.3.0",
+    "oxlint": "1.94.0",
+    "pkgroll": "2.29.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  },
+  "types": "./dist/index.d.mts",
+  "bin": {
+    "defuss-mcp": "bin/contracts.mjs"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.9 <7"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  }
+}

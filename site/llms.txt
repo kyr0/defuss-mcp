@@ -1,0 +1,104 @@
+# defuss-mcp
+
+> Register TypeScript functions as Model Context Protocol (MCP) tools and serve one registry over stdio, Express, bunway or any Fetch handler. TypeScript callers get typed functions back, agents get named JSON Schema and field-level corrections, and bytes, Maps, BigInts and cycles cross the wire intact. Version {{version}}, MIT licensed, ESM and CommonJS with TypeScript declarations, for Node.js 22.19 or newer, Bun and browsers.
+
+Use defuss-mcp when you need:
+
+- existing functions exposed to MCP clients without writing a schema per tool;
+- one tool catalog served from a child process (stdio) and from an HTTP route in your own server;
+- typed remote calls: `getMcpClient<typeof api>(sdk)` returns the original parameter and result types;
+- self-repairing agent calls: an invalid argument returns `INVALID_ARGUMENTS` with JSON Pointer issues;
+- binary payloads (`Uint8Array`, typed arrays, `DataView`) and rich graphs (DSON) next to plain JSON;
+- your authentication, host and origin rules, and defuss-rpc method guards on every MCP call.
+
+The application owns the listener, authentication and process lifetime. defuss-mcp registers only the MCP tools capability; protocol negotiation, JSON-RPC and SSE framing come from the official `@modelcontextprotocol/server` SDK. One registry answers the two newest MCP revisions: 2026-07-28, which clients find through `server/discover`, and 2025-11-25 with its `initialize` handshake. It serves them over stdio and Streamable HTTP, with JSON, SSE or automatic replies.
+
+## Install
+
+{{snippet:install-bun}}
+
+Entry points: `defuss-mcp` (registry, codecs, `ToolFault`), `defuss-mcp/http` (`createMcpHttp`), `defuss-mcp/stdio` (`serveMcpStdio`), `defuss-mcp/client` (`getMcpClient`), `defuss-mcp/validation` (`ajvValidator`), `defuss-mcp/rpc` (`exposeRpc`). The contract generator is the `defuss-mcp` binary and needs `typescript` as a development dependency.
+
+## Quick start: Bun.serve and a typed client
+
+{{snippet:fetch}}
+
+A stock MCP client calls a registered function with positional arguments: `tools/call` with `{"args":["Ada"]}` returns `structuredContent: {"value":"Hello, Ada"}`.
+
+## Registering functions
+
+- `createMcpApi(identity, functions, options?)` takes a plain object of functions (keys are tool names) or an array of named functions (wire name is `function.name`, typed as a tuple).
+- Tool names match `^[A-Za-z0-9_.-]{1,128}$`. Duplicates and registration after the first transport starts throw.
+- Methods keep the object as `this`. Accessor properties are rejected.
+- `options.compile` installs a JSON Schema compiler (`ajvValidator()`), `options.onError(error, toolName)` receives unexpected handler errors, and `options.metadata` sets `title`, `description` and `annotations` per wire name. An unknown metadata name throws.
+- Generator functions return `{ items, result }`, bounded at 1,024 yields and 1 MiB of encoded values.
+- Throw `ToolFault` with a message meant for the calling agent. Other exceptions become the generic `Tool execution failed.` error.
+
+## Generated contracts for agent discovery
+
+{{snippet:contracts}}
+
+{{snippet:contract-source}}
+
+The generator reads named function exports, imported interfaces and JSDoc (summary, `@param`, `@returns`). It supports JSON numbers, strings, booleans, null, literal unions, nullable values, closed records, arrays, `Uint8Array` (base64 with `contentEncoding`), optional, default and rest parameters, promises and void. `--only a,b` selects exports, `--project` picks a tsconfig, and `--check` fails on stale output. Projects that run TypeScript directly set `allowImportingTsExtensions` or `rewriteRelativeImportExtensions`, and the binding then imports `./math.ts`.
+
+A rejected call returns `isError: true` with `structuredContent`:
+
+```json
+{ "message": "Correct the arguments and retry add. /b: …", "code": "INVALID_ARGUMENTS",
+  "issues": [{ "path": "/b", "keyword": "contentEncoding", "instruction": "…" }] }
+```
+
+Resend the call with the field at `path` fixed. The typed client still calls `tools.add(a, b)` with `Uint8Array` values.
+
+## Explicit tools
+
+- `.json(name, schema, handler, { title, description, annotations, validate, outputSchema })`: an object-root JSON Schema; results arrive as `structuredContent.value`. With a compiler, invalid input returns corrections and a result that violates `outputSchema` goes to `onError`.
+- `.dson(name, handler, metadata)`: one string field `dson` holding `DSON.stringify(value)`; use `encodeDson` and `decodeDson` on the client.
+- `.binary(name, handler, { maxBytes, ...metadata })`: `{"bytes":"<base64>"}` in and out, default limit 16 MiB; use `encodeBytes` and `decodeBytes`.
+- `.group(staged => …)`: publish several tools atomically.
+
+## Mounting on Express, bunway or Fetch
+
+{{snippet:express}}
+
+`createMcpHttp(registry, options)` returns `{ fetch, middleware, close }`. Options: `mode` (`'auto'` default, `'json'`, `'sse'`), `authorize(request)` returning `true`, `false` (401 Bearer challenge) or a `Response`, `allowedHosts` (loopback by default), `allowedOrigins`, `maxBodyBytes` (4 MiB default). Mount `middleware` with `app.all(path, …)` on Express or bunway; pass Fetch requests to `endpoint.fetch(request)`. The Fetch path imports no Node module, so it also runs in a browser. Handlers receive `context.request` (HTTP headers), `context.signal` and `context.progress(done, total, message)`.
+
+## stdio
+
+{{snippet:stdio}}
+
+Keep stdout for MCP frames and write logs to stderr. `serveMcpStdio(registry, { maxMessageBytes, onerror })`: a message over `maxMessageBytes` (10 MiB default) closes the connection and reaches `onerror`.
+
+## Message size limits
+
+- HTTP request body: 4 MiB by default (`maxBodyBytes`). An oversized request gets HTTP 413 with a JSON-RPC error that names the limit; the session stays usable.
+- stdio message: 10 MiB by default (`maxMessageBytes`).
+- Decoded binary data: 16 MiB by default (`maxBytes` of `.binary`). Base64 adds a third, so the defaults carry about 3 MiB per HTTP upload and 7 MiB per stdio message; HTTP downloads have no request limit.
+- Client limits: the Python SDK accepts SSE events up to 1 MiB unless `streamable_http_client(..., max_sse_event_size=...)` raises it; the Go SDK's stdio `CommandTransport` reads lines up to 16 MiB; the TypeScript `StdioClientTransport` buffers 10 MiB unless given `maxBufferSize`.
+
+## Hooks
+
+`registry.observeCalls(listener, onError?)` receives start and finish events with a call ID, tool name, transport, status (`ok`, `error`, `cancelled`) and `durationMs`. `registry.processCalls({ before, after })` sees decoded inputs and results; return `{ value }` to replace one. Configure both before the first transport.
+
+## defuss-rpc bridge
+
+`await exposeRpc(registry, rpcRoute, { codec, contracts, include, prefix, maxStreamItems, maxStreamBytes })` publishes each RPC module function and class method as `Namespace.method`. Calls re-enter `rpcRoute` with the MCP request's headers and signal, so RPC guards run. The default codec is DSON; `codec: 'json'` advertises `{ args: [...] }`.
+
+## Typed client
+
+{{snippet:typed}}
+
+`getMcpClient<typeof api>(sdk, { codec })` reads every catalog page once and maps object keys or tuple indices to `tools/call`. Generated contracts use their named fields; other functions negotiate the compact binary codec and fall back to DSON. A tool error rejects the call with the tool's message.
+
+## Verification
+
+`make e2e` installs the packed tarball into an empty project and passes {{cells}} client cells: the official TypeScript SDK on Node.js and Bun, the Python and Go SDKs and the MCP Inspector CLI, against Node and Bun servers on Express, bunway, Fetch and stdio, in every reply mode and protocol era. Each cell also uploads just under the HTTP limit and downloads 11 MiB (6 MiB each way over stdio), and a soak run checks that the retained server heap stays flat over 58,500 calls per transport.
+
+## Links
+
+- Website: {{origin}}/
+- Source and README: {{repo}}
+- Architecture: {{repo}}/blob/main/ARCH.md
+- Verification and benchmarks: {{repo}}/blob/main/docs/VERIFICATION.md
+- Client examples (TypeScript, Python, Go, Inspector): {{repo}}/blob/main/docs/CLIENTS.md

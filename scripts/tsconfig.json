@@ -1,0 +1,5 @@
+{
+  "extends": "../examples/tsconfig.json",
+  "include": ["*.ts", "*.mts"],
+  "exclude": ["signature-client.mts"]
+}

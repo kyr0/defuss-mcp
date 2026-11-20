@@ -1,0 +1,824 @@
+{
+  "version": "0.6.0",
+  "packageSha256": "1417c6d1d46732f80d5f73f97718fa2d8dca446d5f9599559039e783629398e2",
+  "measuredAt": "2026-11-20T14:23:47.340Z",
+  "host": {
+    "cpuModel": "Apple M5 Max",
+    "platform": "darwin-25.6.0-arm64",
+    "node": "24.22.3",
+    "bun": "1.4.5",
+    "python": "3.12.15",
+    "pythonMcp": "2.3.0",
+    "tsSdk": "2.4.0",
+    "go": "1.27.4",
+    "goMcp": "v1.8.0",
+    "inspector": "2.16.0"
+  },
+  "loadAverage": [
+    7.462890625,
+    7.8330078125,
+    6.93896484375
+  ],
+  "cells": [
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "node",
+      "mode": "json"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "node",
+      "mode": "sse"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "node",
+      "mode": "auto"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "node",
+      "mode": "json"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "node",
+      "mode": "sse"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "node",
+      "mode": "auto"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "bun",
+      "mode": "json"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "bun",
+      "mode": "sse"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "bun",
+      "mode": "auto"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "bun",
+      "mode": "json"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "bun",
+      "mode": "sse"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "bun",
+      "mode": "auto"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "python",
+      "mode": "json"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "python",
+      "mode": "sse"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "python",
+      "mode": "auto"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "python",
+      "mode": "json"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "python",
+      "mode": "sse"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "python",
+      "mode": "auto"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "go",
+      "mode": "json"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "inspector-cli",
+      "mode": "json"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "go",
+      "mode": "sse"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "inspector-cli",
+      "mode": "sse"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "go",
+      "mode": "auto"
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "client": "inspector-cli",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "node",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "node",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "node",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "node",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "node",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "node",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "bun",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "bun",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "bun",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "bun",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "bun",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "bun",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "python",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "python",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "python",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "python",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "python",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "python",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "go",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "inspector-cli",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "go",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "inspector-cli",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "go",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "client": "inspector-cli",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "node",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "node",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "node",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "node",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "node",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "node",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "bun",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "bun",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "bun",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "bun",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "bun",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "bun",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "python",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "python",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "python",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "python",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "python",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "python",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "go",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "inspector-cli",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "go",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "inspector-cli",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "go",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "client": "inspector-cli",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "node",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "node",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "node",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "node",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "node",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "node",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "bun",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "bun",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "bun",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "bun",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "bun",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "bun",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "python",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "python",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "python",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "python",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "python",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "python",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "go",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "inspector-cli",
+      "mode": "json"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "go",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "inspector-cli",
+      "mode": "sse"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "go",
+      "mode": "auto"
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "client": "inspector-cli",
+      "mode": "auto"
+    },
+    {
+      "server": "node",
+      "provider": "child",
+      "client": "node",
+      "mode": "stdio"
+    },
+    {
+      "server": "node",
+      "provider": "child",
+      "client": "node",
+      "mode": "stdio"
+    },
+    {
+      "server": "node",
+      "provider": "child",
+      "client": "bun",
+      "mode": "stdio"
+    },
+    {
+      "server": "node",
+      "provider": "child",
+      "client": "bun",
+      "mode": "stdio"
+    },
+    {
+      "server": "node",
+      "provider": "child",
+      "client": "python",
+      "mode": "stdio"
+    },
+    {
+      "server": "node",
+      "provider": "child",
+      "client": "python",
+      "mode": "stdio"
+    },
+    {
+      "server": "node",
+      "provider": "child",
+      "client": "go",
+      "mode": "stdio"
+    },
+    {
+      "server": "node",
+      "provider": "child",
+      "client": "inspector-cli",
+      "mode": "stdio"
+    },
+    {
+      "server": "bun",
+      "provider": "child",
+      "client": "node",
+      "mode": "stdio"
+    },
+    {
+      "server": "bun",
+      "provider": "child",
+      "client": "node",
+      "mode": "stdio"
+    },
+    {
+      "server": "bun",
+      "provider": "child",
+      "client": "bun",
+      "mode": "stdio"
+    },
+    {
+      "server": "bun",
+      "provider": "child",
+      "client": "bun",
+      "mode": "stdio"
+    },
+    {
+      "server": "bun",
+      "provider": "child",
+      "client": "python",
+      "mode": "stdio"
+    },
+    {
+      "server": "bun",
+      "provider": "child",
+      "client": "python",
+      "mode": "stdio"
+    },
+    {
+      "server": "bun",
+      "provider": "child",
+      "client": "go",
+      "mode": "stdio"
+    },
+    {
+      "server": "bun",
+      "provider": "child",
+      "client": "inspector-cli",
+      "mode": "stdio"
+    }
+  ],
+  "latency": [
+    {
+      "server": "node",
+      "provider": "express",
+      "method": "rpc",
+      "p50Ms": 0.08129150000002028,
+      "p95Ms": 0.15904199999999946,
+      "serialPerSecond": 10869.663280657858,
+      "eightInFlightPerSecond": 16721.580802510463
+    },
+    {
+      "server": "node",
+      "provider": "express",
+      "method": "mcp-functions-auto",
+      "p50Ms": 0.10577100000011797,
+      "p95Ms": 0.4470420000000104,
+      "serialPerSecond": 7951.786094409501,
+      "eightInFlightPerSecond": 13082.65869060603
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "method": "rpc",
+      "p50Ms": 0.06722900000005438,
+      "p95Ms": 0.1622499999999718,
+      "serialPerSecond": 12577.891739067112,
+      "eightInFlightPerSecond": 20740.124298157112
+    },
+    {
+      "server": "bun",
+      "provider": "express",
+      "method": "mcp-functions-auto",
+      "p50Ms": 0.10295850000005657,
+      "p95Ms": 0.26987499999995634,
+      "serialPerSecond": 7216.330729633122,
+      "eightInFlightPerSecond": 14326.577009156945
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "method": "rpc",
+      "p50Ms": 0.051104000000037786,
+      "p95Ms": 0.10779199999998923,
+      "serialPerSecond": 16135.754621643247,
+      "eightInFlightPerSecond": 35562.69443718046
+    },
+    {
+      "server": "bun",
+      "provider": "bunway",
+      "method": "mcp-functions-auto",
+      "p50Ms": 0.07168749999999591,
+      "p95Ms": 0.2047090000000935,
+      "serialPerSecond": 12210.26118603392,
+      "eightInFlightPerSecond": 19220.662211877716
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "method": "rpc",
+      "p50Ms": 0.04785449999997127,
+      "p95Ms": 0.0936670000000106,
+      "serialPerSecond": 18173.14463551498,
+      "eightInFlightPerSecond": 33760.212464270866
+    },
+    {
+      "server": "bun",
+      "provider": "fetch",
+      "method": "mcp-functions-auto",
+      "p50Ms": 0.069729499999994,
+      "p95Ms": 0.12695900000005622,
+      "serialPerSecond": 11578.316776726257,
+      "eightInFlightPerSecond": 19595.667887721687
+    },
+    {
+      "server": "node",
+      "provider": "child",
+      "method": "mcp-functions-auto",
+      "p50Ms": 0.033229500000004464,
+      "p95Ms": 0.05458300000003646,
+      "serialPerSecond": 27180.68605682455,
+      "eightInFlightPerSecond": 62649.56768535323
+    },
+    {
+      "server": "bun",
+      "provider": "child",
+      "method": "mcp-functions-auto",
+      "p50Ms": 0.028416999999990367,
+      "p95Ms": 0.05612500000000864,
+      "serialPerSecond": 27155.46503733873,
+      "eightInFlightPerSecond": 76125.04490188285
+    }
+  ],
+  "throughput": [
+    {
+      "method": "rpc-dson",
+      "p50Ms": 4.780916500000032,
+      "mibPerSecond": 30.54915932532184
+    },
+    {
+      "method": "mcp-bytes",
+      "p50Ms": 0.9663340000000176,
+      "mibPerSecond": 130.11867343491951
+    },
+    {
+      "method": "mcp-functions-auto",
+      "p50Ms": 1.0374795000000177,
+      "mibPerSecond": 214.0735368287834
+    },
+    {
+      "method": "mcp-functions-dson",
+      "p50Ms": 5.0270624999999995,
+      "mibPerSecond": 26.86165217641708
+    }
+  ],
+  "coldStart": [
+    {
+      "runtime": "node",
+      "baselineVersion": "0.4.0",
+      "baselineMs": 50.395312499999996,
+      "currentMs": 38.924729500000005
+    },
+    {
+      "runtime": "bun",
+      "baselineVersion": "0.4.0",
+      "baselineMs": 43.940875,
+      "currentMs": 31.165021
+    }
+  ]
+}

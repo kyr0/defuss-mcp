@@ -1,0 +1,182 @@
+# defuss-mcp
+
+> Register TypeScript functions as Model Context Protocol (MCP) tools and serve one registry over stdio, Express, bunway or any Fetch handler. TypeScript callers get typed functions back, agents get named JSON Schema and field-level corrections, and bytes, Maps, BigInts and cycles cross the wire intact. Version 0.6.0, MIT licensed, ESM and CommonJS with TypeScript declarations, for Node.js 22.19 or newer, Bun and browsers.
+
+Use defuss-mcp when you need:
+
+- existing functions exposed to MCP clients without writing a schema per tool;
+- one tool catalog served from a child process (stdio) and from an HTTP route in your own server;
+- typed remote calls: `getMcpClient<typeof api>(sdk)` returns the original parameter and result types;
+- self-repairing agent calls: an invalid argument returns `INVALID_ARGUMENTS` with JSON Pointer issues;
+- binary payloads (`Uint8Array`, typed arrays, `DataView`) and rich graphs (DSON) next to plain JSON;
+- your authentication, host and origin rules, and defuss-rpc method guards on every MCP call.
+
+The application owns the listener, authentication and process lifetime. defuss-mcp registers only the MCP tools capability; protocol negotiation, JSON-RPC and SSE framing come from the official `@modelcontextprotocol/server` SDK. One registry answers the two newest MCP revisions: 2026-07-28, which clients find through `server/discover`, and 2025-11-25 with its `initialize` handshake. It serves them over stdio and Streamable HTTP, with JSON, SSE or automatic replies.
+
+## Install
+
+```sh
+bun add defuss-mcp
+```
+
+Entry points: `defuss-mcp` (registry, codecs, `ToolFault`), `defuss-mcp/http` (`createMcpHttp`), `defuss-mcp/stdio` (`serveMcpStdio`), `defuss-mcp/client` (`getMcpClient`), `defuss-mcp/validation` (`ajvValidator`), `defuss-mcp/rpc` (`exposeRpc`). The contract generator is the `defuss-mcp` binary and needs `typescript` as a development dependency.
+
+## Quick start: Bun.serve and a typed client
+
+```ts
+// server.ts, run with: bun server.ts
+import { createMcpApi } from 'defuss-mcp';
+import { createMcpHttp } from 'defuss-mcp/http';
+
+export const api = createMcpApi(
+  { name: 'greeter', version: '1.0.0' },
+  { greet(name: string) { return 'Hello, ' + name; } },
+  { metadata: { greet: { title: 'Greet', annotations: { readOnlyHint: true } } } },
+);
+const endpoint = createMcpHttp(api);
+Bun.serve({ hostname: '127.0.0.1', port: 3000, fetch: (request) => endpoint.fetch(request) });
+
+// client.ts: the official SDK client with typed functions
+import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
+import { getMcpClient } from 'defuss-mcp/client';
+import type { api } from './server.ts';
+
+const sdk = new Client({ name: 'caller', version: '1.0.0' });
+await sdk.connect(new StreamableHTTPClientTransport(new URL('http://127.0.0.1:3000/mcp')));
+const { tools } = await getMcpClient<typeof api>(sdk);
+console.log(await tools.greet('Ada')); // "Hello, Ada", typed as string
+```
+
+A stock MCP client calls a registered function with positional arguments: `tools/call` with `{"args":["Ada"]}` returns `structuredContent: {"value":"Hello, Ada"}`.
+
+## Registering functions
+
+- `createMcpApi(identity, functions, options?)` takes a plain object of functions (keys are tool names) or an array of named functions (wire name is `function.name`, typed as a tuple).
+- Tool names match `^[A-Za-z0-9_.-]{1,128}$`. Duplicates and registration after the first transport starts throw.
+- Methods keep the object as `this`. Accessor properties are rejected.
+- `options.compile` installs a JSON Schema compiler (`ajvValidator()`), `options.onError(error, toolName)` receives unexpected handler errors, and `options.metadata` sets `title`, `description` and `annotations` per wire name. An unknown metadata name throws.
+- Generator functions return `{ items, result }`, bounded at 1,024 yields and 1 MiB of encoded values.
+- Throw `ToolFault` with a message meant for the calling agent. Other exceptions become the generic `Tool execution failed.` error.
+
+## Generated contracts for agent discovery
+
+```sh
+bunx defuss-mcp --entry src/math.ts --out src/math.mcp.ts
+```
+
+```ts
+// math.ts
+/** Add equal-length byte arrays elementwise, modulo 256. */
+export function add(a: Uint8Array, b: Uint8Array): Uint8Array {
+  if (a.length !== b.length) throw new RangeError('Expected equal lengths.');
+  return a.map((value, i) => value + b[i]!);
+}
+
+// server.ts: a stock client now sees { a: base64, b: base64 } and gets corrections at /a or /b
+import { createMcpApi } from 'defuss-mcp';
+import { add } from './math.mcp.js';
+export const api = createMcpApi({ name: 'math', version: '1' }, { add });
+```
+
+The generator reads named function exports, imported interfaces and JSDoc (summary, `@param`, `@returns`). It supports JSON numbers, strings, booleans, null, literal unions, nullable values, closed records, arrays, `Uint8Array` (base64 with `contentEncoding`), optional, default and rest parameters, promises and void. `--only a,b` selects exports, `--project` picks a tsconfig, and `--check` fails on stale output. Projects that run TypeScript directly set `allowImportingTsExtensions` or `rewriteRelativeImportExtensions`, and the binding then imports `./math.ts`.
+
+A rejected call returns `isError: true` with `structuredContent`:
+
+```json
+{ "message": "Correct the arguments and retry add. /b: …", "code": "INVALID_ARGUMENTS",
+  "issues": [{ "path": "/b", "keyword": "contentEncoding", "instruction": "…" }] }
+```
+
+Resend the call with the field at `path` fixed. The typed client still calls `tools.add(a, b)` with `Uint8Array` values.
+
+## Explicit tools
+
+- `.json(name, schema, handler, { title, description, annotations, validate, outputSchema })`: an object-root JSON Schema; results arrive as `structuredContent.value`. With a compiler, invalid input returns corrections and a result that violates `outputSchema` goes to `onError`.
+- `.dson(name, handler, metadata)`: one string field `dson` holding `DSON.stringify(value)`; use `encodeDson` and `decodeDson` on the client.
+- `.binary(name, handler, { maxBytes, ...metadata })`: `{"bytes":"<base64>"}` in and out, default limit 16 MiB; use `encodeBytes` and `decodeBytes`.
+- `.group(staged => …)`: publish several tools atomically.
+
+## Mounting on Express, bunway or Fetch
+
+```ts
+import express from 'express';
+import { createMcpApi } from 'defuss-mcp';
+import { createMcpHttp } from 'defuss-mcp/http';
+import { ajvValidator } from 'defuss-mcp/validation';
+
+const tools = createMcpApi({ name: 'arithmetic', version: '1.0.0' }, { compile: ajvValidator() });
+tools.json<{ a: number; b: number }>('add', {
+  type: 'object',
+  properties: { a: { type: 'number' }, b: { type: 'number' } },
+  required: ['a', 'b'],
+  additionalProperties: false,
+}, ({ a, b }) => a + b, { description: 'Add two numbers.', annotations: { readOnlyHint: true } });
+
+const token = process.env.MCP_API_TOKEN;
+if (!token) throw new Error('Set MCP_API_TOKEN before starting the server.');
+const endpoint = createMcpHttp(tools, {
+  authorize: (request) => request.headers.get('authorization') === 'Bearer ' + token,
+});
+const app = express();
+app.all('/mcp', endpoint.middleware);
+app.listen(3000, '127.0.0.1');
+```
+
+`createMcpHttp(registry, options)` returns `{ fetch, middleware, close }`. Options: `mode` (`'auto'` default, `'json'`, `'sse'`), `authorize(request)` returning `true`, `false` (401 Bearer challenge) or a `Response`, `allowedHosts` (loopback by default), `allowedOrigins`, `maxBodyBytes` (4 MiB default). Mount `middleware` with `app.all(path, …)` on Express or bunway; pass Fetch requests to `endpoint.fetch(request)`. The Fetch path imports no Node module, so it also runs in a browser. Handlers receive `context.request` (HTTP headers), `context.signal` and `context.progress(done, total, message)`.
+
+## stdio
+
+```ts
+import { createMcpApi } from 'defuss-mcp';
+import { serveMcpStdio } from 'defuss-mcp/stdio';
+
+const notes = ['Ship the release', 'Review the client matrix'];
+const api = createMcpApi({ name: 'notes', version: '1.0.0' }, {
+  search(query: string, limit = 10) { return notes.filter((note) => note.includes(query)).slice(0, limit); },
+});
+api.observeCalls((event) => {
+  process.stderr.write(JSON.stringify({ time: new Date().toISOString(), level: 'info', ...event }) + '\n');
+});
+const handle = await serveMcpStdio(api);
+process.once('SIGTERM', () => void handle.close());
+```
+
+Keep stdout for MCP frames and write logs to stderr. `serveMcpStdio(registry, { maxMessageBytes, onerror })`: a message over `maxMessageBytes` (10 MiB default) closes the connection and reaches `onerror`.
+
+## Message size limits
+
+- HTTP request body: 4 MiB by default (`maxBodyBytes`). An oversized request gets HTTP 413 with a JSON-RPC error that names the limit; the session stays usable.
+- stdio message: 10 MiB by default (`maxMessageBytes`).
+- Decoded binary data: 16 MiB by default (`maxBytes` of `.binary`). Base64 adds a third, so the defaults carry about 3 MiB per HTTP upload and 7 MiB per stdio message; HTTP downloads have no request limit.
+- Client limits: the Python SDK accepts SSE events up to 1 MiB unless `streamable_http_client(..., max_sse_event_size=...)` raises it; the Go SDK's stdio `CommandTransport` reads lines up to 16 MiB; the TypeScript `StdioClientTransport` buffers 10 MiB unless given `maxBufferSize`.
+
+## Hooks
+
+`registry.observeCalls(listener, onError?)` receives start and finish events with a call ID, tool name, transport, status (`ok`, `error`, `cancelled`) and `durationMs`. `registry.processCalls({ before, after })` sees decoded inputs and results; return `{ value }` to replace one. Configure both before the first transport.
+
+## defuss-rpc bridge
+
+`await exposeRpc(registry, rpcRoute, { codec, contracts, include, prefix, maxStreamItems, maxStreamBytes })` publishes each RPC module function and class method as `Namespace.method`. Calls re-enter `rpcRoute` with the MCP request's headers and signal, so RPC guards run. The default codec is DSON; `codec: 'json'` advertises `{ args: [...] }`.
+
+## Typed client
+
+```ts
+const { tools } = await getMcpClient<typeof api>(sdk);
+await tools.add(2, 3);                                   // 5
+await tools.byteAdd(Uint8Array.of(1, 2), Uint8Array.of(3, 4)); // Uint8Array [4, 6]
+await tools.tally(['mcp', 'dson', 'mcp']);               // Map { mcp => 2, dson => 1 }
+```
+
+`getMcpClient<typeof api>(sdk, { codec })` reads every catalog page once and maps object keys or tuple indices to `tools/call`. Generated contracts use their named fields; other functions negotiate the compact binary codec and fall back to DSON. A tool error rejects the call with the tool's message.
+
+## Verification
+
+`make e2e` installs the packed tarball into an empty project and passes 112 client cells: the official TypeScript SDK on Node.js and Bun, the Python and Go SDKs and the MCP Inspector CLI, against Node and Bun servers on Express, bunway, Fetch and stdio, in every reply mode and protocol era. Each cell also uploads just under the HTTP limit and downloads 11 MiB (6 MiB each way over stdio), and a soak run checks that the retained server heap stays flat over 58,500 calls per transport.
+
+## Links
+
+- Website: https://mcp.defuss.org/
+- Source and README: https://github.com/kyr0/defuss-mcp
+- Architecture: https://github.com/kyr0/defuss-mcp/blob/main/ARCH.md
+- Verification and benchmarks: https://github.com/kyr0/defuss-mcp/blob/main/docs/VERIFICATION.md
+- Client examples (TypeScript, Python, Go, Inspector): https://github.com/kyr0/defuss-mcp/blob/main/docs/CLIENTS.md
