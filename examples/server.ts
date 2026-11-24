@@ -38,7 +38,7 @@ addHook({
 });
 
 const registry = createMcpApi(
-  { name: 'defuss-mcp-example', version: '0.6.0' },
+  { name: 'defuss-mcp-example', version: '0.6.1' },
   { directAdd: Arithmetic.add, directEcho: Arithmetic.echo, byteAdd },
   { compile: ajvValidator() },
 );

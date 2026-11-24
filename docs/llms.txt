@@ -1,6 +1,6 @@
 # defuss-mcp
 
-> Register TypeScript functions as Model Context Protocol (MCP) tools and serve one registry over stdio, Express, bunway or any Fetch handler. TypeScript callers get typed functions back, agents get named JSON Schema and field-level corrections, and bytes, Maps, BigInts and cycles cross the wire intact. Version 0.6.0, MIT licensed, ESM and CommonJS with TypeScript declarations, for Node.js 22.19 or newer, Bun and browsers.
+> Register TypeScript functions as Model Context Protocol (MCP) tools and serve one registry over stdio, Express, bunway or any Fetch handler. TypeScript callers get typed functions back, agents get named JSON Schema and field-level corrections, and bytes, Maps, BigInts and cycles cross the wire intact. Version 0.6.1, MIT licensed, ESM and CommonJS with TypeScript declarations, for Node.js 22.19 or newer, Bun and browsers.
 
 Use defuss-mcp when you need:
 

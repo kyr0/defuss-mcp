@@ -62,6 +62,9 @@ for (const file of [
 ])
   if (json(file).environment.packageSha256 !== packedHash)
     throw new Error(`${file} came from a different tarball. Rerun make verify and make bench.`);
+// VERIFIED: docs/*.md ships in the tarball, so editing it after make bench left the 0.6.1 site figures on an older digest.
+if (JSON.parse(readFileSync(join(root, 'site/data/evidence.json'), 'utf8')).packageSha256 !== packedHash)
+  throw new Error('site/data/evidence.json came from a different tarball. Rerun make verify and make bench, then bun scripts/site-data.ts.');
 
 interface Row {
   server: string;

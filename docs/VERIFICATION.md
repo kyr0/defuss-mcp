@@ -1,6 +1,6 @@
 # Verification and benchmark scope
 
-The 0.6.0 evidence comes from macOS 26.7 on an 18-core Apple M5 Max (arm64) with Node.js 24.22.3, Bun 1.4.5, Python 3.12.15 in the uv environment, Go 1.27.4, TypeScript MCP SDK 2.4.0 and Python MCP SDK 2.3.0. Releases up to 0.5.1 ran the same matrix on Linux x86-64. The CI workflow runs `make verify` on ubuntu-latest. Every HTTP cell uses defuss-rpc 2.0.0 on the same listener as defuss-mcp.
+The 0.6.1 evidence comes from macOS 26.7 on an 18-core Apple M5 Max (arm64) with Node.js 24.22.3, Bun 1.4.5, Python 3.12.15 in the uv environment, Go 1.27.4, TypeScript MCP SDK 2.4.0 and Python MCP SDK 2.3.0. Releases up to 0.5.1 ran the same matrix on Linux x86-64. The CI workflow runs `make verify` on ubuntu-latest. Every HTTP cell uses defuss-rpc 2.0.0 on the same listener as defuss-mcp.
 
 | Server | Official clients | Exchanges per client |
 |---|---|---|
@@ -28,7 +28,7 @@ Every HTTP cell uploads 3 MiB less 4 KiB through `bytes.echo`, just under the de
 
 VERIFIED: (probes before the fixes) An oversized upload to Express on Node or Bun ended the Python SDK's session with a ReadError, because the 413 reply closed the connection while httpx was still sending. Fetch and bunway servers kept the session. The 413 body was plain text on Fetch and bunway and one of two JSON-RPC messages on Express. A stdio server closed on any message over 10 MiB without a diagnostic, and `serveMcpStdio` had no option to raise that limit.
 
-`make bench-large` times ten transfers per row with the Bun client and samples the server's resident memory every 20 ms. In one 0.6.0 run on the host above, with a load average near 15 from other work, 3 MiB uploads moved 340 to 660 MiB/s and 11 MiB downloads 310 to 520 MiB/s over HTTP, counting both directions of an echo. Over stdio, 6 MiB transfers moved 200 to 400 MiB/s. `validation/benchmarks.md` lists every row of a release. Resident memory reached 0.1 to 0.6 GiB during transfers. It includes garbage the collector has not reclaimed yet; the memory soak below measures what stays retained.
+`make bench-large` times ten transfers per row with the Bun client and samples the server's resident memory every 20 ms. In one 0.6.1 run on the host above, with a load average near 8 from other work, 3 MiB uploads moved 340 to 740 MiB/s and 11 MiB downloads 320 to 640 MiB/s over HTTP, counting both directions of an echo. Over stdio, 6 MiB transfers moved 240 to 420 MiB/s. `validation/benchmarks.md` lists every row of a release. Resident memory reached 0.1 to 0.6 GiB during transfers. It includes garbage the collector has not reclaimed yet; the memory soak below measures what stays retained.
 
 VERIFIED: On the same host, the stdio reader in `serveMcpStdio` halved the median 6 MiB stdio upload compared with the SDK's reader, from 80.6 to 40.4 ms on Node and from 56.5 to 30.4 ms on Bun. The Node server's sampled peak resident memory fell from 888 to 315 MiB.
 
@@ -50,7 +50,7 @@ Each client calls the same integer addition implementation. Direct RPC uses getR
 
 Each scenario warms with 80 operations. Five rounds each measure 100 serial calls and twelve batches of eight concurrent calls. Rotate scenario order each round. Check every result. Timings exclude installation, process startup, negotiation and discovery. Serial p50 and p95 describe the pooled 500 calls. Throughput is the median of the five round rates. Client and server processes share one host and communicate over loopback or local pipes. Each evidence file records the host's load average, since other work on the host shifts latency. These figures describe this payload and deployment. They do not establish production capacity or a runtime ranking for different workloads.
 
-Run make bench to regenerate the raw JSON, then make metrics to print every combination. The release includes validation/bench.json and validation/benchmarks.md. Linux evidence covers releases up to 0.5.1 and macOS evidence covers 0.5.2 and 0.6.0. Windows compatibility is unverified. Stdio and the two Streamable HTTP reply formats are covered. The historical split-endpoint HTTP plus SSE transport is outside this package's scope.
+Run make bench to regenerate the raw JSON, then make metrics to print every combination. The release includes validation/bench.json and validation/benchmarks.md. Linux evidence covers releases up to 0.5.1 and macOS evidence covers 0.5.2 to 0.6.1. Windows compatibility is unverified. Stdio and the two Streamable HTTP reply formats are covered. The historical split-endpoint HTTP plus SSE transport is outside this package's scope.
 
 ## Paired release comparison
 

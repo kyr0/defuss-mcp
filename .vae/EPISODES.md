@@ -92,3 +92,5 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-24T04:18:20Z s=5940460f FINDING src/http.ts:createMcpHttp fetch learn=test: VERIFIED: http-boundaries.test.ts SSE test fails with Received keep-alive without the fix and passes with it; make verify ran 73 tests and 112 client cells.
 2026-11-24T04:18:20Z s=5940460f FINDING src/ARCH.md:24 S08 P09 learn=none: Prose fix; no mechanical check fits.
 2026-11-24T04:18:20Z s=5940460f FINDING docs/assets/*, docs/index.html, docs/404.html learn=none: Generated output, no defect.
+2026-11-24T20:27:55Z s=5940460f DONE fp=b637f647b66c cov=99.9% paths=README.md,docs/404.html,docs/VERIFICATION.md,docs/assets/demo-CPSP0GgC.js(+13)
+2026-11-24T20:27:55Z s=5940460f FINDING site/data/evidence.json:3 packageSha256 learn=verifier: scripts/release.ts now refuses to package when site/data/evidence.json names another digest than the packed archive, beside its existing checks of the output ev

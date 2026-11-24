@@ -20,7 +20,7 @@ Coding agents can read [llms.txt](docs/llms.txt), a compact summary of this page
 From the extracted project, install the tarball into your application.
 
 ```sh
-bun add /path/to/defuss-mcp/validation/defuss-mcp-0.6.0.tgz
+bun add /path/to/defuss-mcp/validation/defuss-mcp-0.6.1.tgz
 ```
 
 The library ships ESM, CommonJS and TypeScript declarations. The tested runtimes and client versions are in the [verification notes](docs/VERIFICATION.md).

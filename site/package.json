@@ -1,6 +1,6 @@
 {
   "name": "defuss-mcp-site",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Project website for defuss-mcp: a live in-browser MCP demo, the client matrix and measured performance.",
   "type": "module",
   "private": true,
