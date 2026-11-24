@@ -94,3 +94,10 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-24T04:18:20Z s=5940460f FINDING docs/assets/*, docs/index.html, docs/404.html learn=none: Generated output, no defect.
 2026-11-24T20:27:55Z s=5940460f DONE fp=b637f647b66c cov=99.9% paths=README.md,docs/404.html,docs/VERIFICATION.md,docs/assets/demo-CPSP0GgC.js(+13)
 2026-11-24T20:27:55Z s=5940460f FINDING site/data/evidence.json:3 packageSha256 learn=verifier: scripts/release.ts now refuses to package when site/data/evidence.json names another digest than the packed archive, beside its existing checks of the output ev
+2026-11-24T22:42:32Z s=dcdb118f DONE fp=c3a2068809a2 cov=99.9% paths=README.md,src/rpc.ts,tests/library.test.ts
+2026-11-24T22:42:32Z s=dcdb118f FINDING src/rpc.ts:exposeRpc discovery request learn=test: VERIFIED: tests/library.test.ts 'sends discoveryHeaders to a guarded schema only' covers it.
+2026-11-24T22:42:32Z s=dcdb118f FINDING src/rpc.ts:invoke (security boundary) learn=test: VERIFIED: the test asserts the route saw '/rpc -' for the agent without a key.
+2026-11-24T23:27:30Z s=dcdb118f DONE fp=e375c1a354c8 cov=99.9% paths=README.md,docs/404.html,docs/VERIFICATION.md,docs/index.html(+8)
+2026-11-24T23:27:30Z s=dcdb118f FINDING docs/VERIFICATION.md:53 B09 learn=verifier: VERIFIED: the site build and site-data refuse evidence from another version or tarball; all five evidence files and site/data/evidence.json carry sha256 f5ae41b
+2026-11-24T23:27:30Z s=dcdb118f FINDING docs/VERIFICATION.md:31 B03 learn=none: VERIFIED: a docs edit after bench always moves the digest; the sentence states its run and load.
+2026-11-24T23:27:30Z s=dcdb118f FINDING docs/VERIFICATION.md:3 B01 learn=none: VERIFIED: no change needed.

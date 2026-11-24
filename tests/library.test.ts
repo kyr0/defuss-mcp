@@ -1066,6 +1066,43 @@ describe('generated named contracts', () => {
 });
 
 describe('RPC response boundaries', () => {
+  it('sends discoveryHeaders to a guarded schema only; each call carries its own MCP request headers', async () => {
+    const { DSON } = await import('defuss-dson');
+    const seen: string[] = [];
+    // A route that answers 401 unless the request carries the key, as a host does that guards all of /rpc.
+    const route = async ({ request }: { request: Request }) => {
+      const auth = request.headers.get('authorization') ?? '-';
+      seen.push(new URL(request.url).pathname + ' ' + auth);
+      if (auth !== 'Bearer key') return new Response(null, { status: 401 });
+      if (request.url.endsWith('/rpc/schema'))
+        return Response.json([{ moduleName: 'Things', methods: { one: { generator: false } } }]);
+      return new Response(DSON.stringify(1));
+    };
+    await expect(exposeRpc(createMcpApi(identity), route)).rejects.toThrow('401');
+    const registry = createMcpApi(identity);
+    await exposeRpc(registry, route, { codec: 'json', discoveryHeaders: { Authorization: 'Bearer key' } });
+    const http = createMcpHttp(registry);
+    try {
+      await connected(http, async (c) => {
+        expect((await c.listTools()).tools.map((t) => t.name)).toEqual(['Things.one']);
+        const denied = await c.callTool({ name: 'Things.one', arguments: { args: [] } });
+        expect(denied.isError).toBe(true);
+        expect(denied.structuredContent).toEqual({ message: 'RPC call rejected (HTTP 401).' });
+      });
+      await connected(
+        http,
+        async (c) => {
+          const allowed = await c.callTool({ name: 'Things.one', arguments: { args: [] } });
+          expect(allowed.structuredContent).toEqual({ value: 1 });
+        },
+        false,
+        { Authorization: 'Bearer key' },
+      );
+    } finally {
+      await http.close();
+    }
+    expect(seen).toEqual(['/rpc/schema -', '/rpc/schema Bearer key', '/rpc -', '/rpc Bearer key']);
+  });
   it('keeps discovery atomic on rejected responses and malformed catalog entries', async () => {
     const registry = createMcpApi(identity);
     const ok = [{ moduleName: 'Things', methods: { one: { generator: false } } }];

@@ -20,7 +20,7 @@ Coding agents can read [llms.txt](docs/llms.txt), a compact summary of this page
 From the extracted project, install the tarball into your application.
 
 ```sh
-bun add /path/to/defuss-mcp/validation/defuss-mcp-0.6.1.tgz
+bun add /path/to/defuss-mcp/validation/defuss-mcp-0.6.2.tgz
 ```
 
 The library ships ESM, CommonJS and TypeScript declarations. The tested runtimes and client versions are in the [verification notes](docs/VERIFICATION.md).
@@ -299,7 +299,7 @@ await server.start();
 
 An RPC client calls `rpc.MathApi.add(2, 3)`. An MCP client calls `MathApi.add` with `{ args: [2, 3] }` in JSON mode. The default RPC bridge codec is DSON and takes `encodeDson({ args: [2, 3] })`. This preserves rich RPC arguments and results. A plain JSON agent can discover positional calls in JSON mode. To advertise descriptive named parameters and constraints, register a JSON tool with its own schema.
 
-Discovery reads the RPC schema once and exposes each listed module function and class method as `Namespace.method`. The bridge calls the in-process RPC dispatcher with request headers and signal. RPC guards and class construction run on every call. Mount authorization middleware on both paths when it protects the original RPC endpoint. Use `include(namespace, method)` to restrict discovery and `prefix` to disambiguate names. File upload and download handlers are distinct RPC endpoints.
+Discovery reads the RPC schema once and exposes each listed module function and class method as `Namespace.method`. The bridge calls the in-process RPC dispatcher with request headers and signal. RPC guards and class construction run on every call. Mount authorization middleware on both paths when it protects the original RPC endpoint. If that middleware also guards `/rpc/schema`, pass its credential as `discoveryHeaders`. Only the discovery request sends these headers. Each call forwards its own MCP request's headers, so the guard judges the agent and not the bridge. VERIFIED by `tests/library.test.ts`: a call without the agent's credential gets 401 after a guarded discovery succeeded. Use `include(namespace, method)` to restrict discovery and `prefix` to disambiguate names. File upload and download handlers are distinct RPC endpoints.
 
 An RPC generator returns `{ items, result }`, including its final return value. Streaming callers that request progress receive the yielded item count as intermediate notifications. The default collection limit is 1,024 yields and 1 MiB of encoded frames per call. `maxStreamItems` and `maxStreamBytes` set those bounds. An exceeded limit or cancellation closes the reader. The runnable [shared server](examples/server.ts) covers classes, guards, generators, three HTTP modes and stdio.
 

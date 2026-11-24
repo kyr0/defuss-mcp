@@ -22,6 +22,11 @@ export interface RpcOptions {
   maxStreamBytes?: number;
   /** Maximum yielded items per collected generator result. Defaults to 1024. */
   maxStreamItems?: number;
+  /**
+   * Headers of the discovery request only, e.g. the credential a guarded `/rpc/schema` requires. Calls never send
+   * them: each forwards its own MCP request's headers, so a guard still judges the caller and not this bridge.
+   */
+  discoveryHeaders?: HeadersInit;
 }
 const rpcArgsSchema = {
   type: 'object' as const,
@@ -79,7 +84,9 @@ export async function exposeRpc(
   const items = options.maxStreamItems ?? 1024;
   if (![bytes, items].every((n) => Number.isSafeInteger(n) && n > 0))
     throw new RangeError('Invalid RPC generator limit.');
-  const response = await route({ request: new Request('http://localhost/rpc/schema') });
+  const response = await route({
+    request: new Request('http://localhost/rpc/schema', { headers: options.discoveryHeaders }),
+  });
   if (!response.ok) {
     await response.body?.cancel();
     throw new Error('RPC discovery failed: ' + response.status);

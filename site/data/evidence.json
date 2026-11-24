@@ -1,7 +1,7 @@
 {
-  "version": "0.6.1",
-  "packageSha256": "1b65851b8c966ea278ac8869b948e6b1b353972bebf339f0d955b3967ea64e5b",
-  "measuredAt": "2026-11-24T20:20:39.054Z",
+  "version": "0.6.2",
+  "packageSha256": "f5ae41b22246c26ce731bef5de6bb4851823e4779f7134bb3eaf21e817490648",
+  "measuredAt": "2026-11-24T23:21:34.948Z",
   "host": {
     "cpuModel": "Apple M5 Max",
     "platform": "darwin-25.6.0-arm64",
@@ -15,9 +15,9 @@
     "inspector": "2.16.0"
   },
   "loadAverage": [
-    4.52587890625,
-    5.27490234375,
-    6.31494140625
+    7.25439453125,
+    7.2646484375,
+    6.49462890625
   ],
   "cells": [
     {
@@ -698,127 +698,127 @@
       "server": "node",
       "provider": "express",
       "method": "rpc",
-      "p50Ms": 0.07752050000004829,
-      "p95Ms": 0.12279200000000401,
-      "serialPerSecond": 11587.20624114736,
-      "eightInFlightPerSecond": 19327.07552155418
+      "p50Ms": 0.10056250000002365,
+      "p95Ms": 0.3973750000000109,
+      "serialPerSecond": 7486.804693897222,
+      "eightInFlightPerSecond": 15351.916294955612
     },
     {
       "server": "node",
       "provider": "express",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.09977099999997563,
-      "p95Ms": 0.16866700000014134,
-      "serialPerSecond": 8965.594530987335,
-      "eightInFlightPerSecond": 17426.5584017523
+      "p50Ms": 0.12885399999993297,
+      "p95Ms": 0.42266700000004676,
+      "serialPerSecond": 6346.704740125283,
+      "eightInFlightPerSecond": 9780.863821440595
     },
     {
       "server": "bun",
       "provider": "express",
       "method": "rpc",
-      "p50Ms": 0.05308300000001509,
-      "p95Ms": 0.08758299999999508,
-      "serialPerSecond": 16216.325785985162,
-      "eightInFlightPerSecond": 34338.8536617561
+      "p50Ms": 0.06847900000008167,
+      "p95Ms": 0.2103749999998854,
+      "serialPerSecond": 11537.296271538116,
+      "eightInFlightPerSecond": 18536.84439188046
     },
     {
       "server": "bun",
       "provider": "express",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.07362549999999146,
-      "p95Ms": 0.1058749999999975,
-      "serialPerSecond": 13137.367599967258,
-      "eightInFlightPerSecond": 21203.95153306767
+      "p50Ms": 0.10039600000004612,
+      "p95Ms": 0.3726250000000846,
+      "serialPerSecond": 8634.957433545595,
+      "eightInFlightPerSecond": 17261.39980602457
     },
     {
       "server": "bun",
       "provider": "bunway",
       "method": "rpc",
-      "p50Ms": 0.05131249999999454,
-      "p95Ms": 0.10629200000005312,
-      "serialPerSecond": 16145.09141592933,
-      "eightInFlightPerSecond": 30583.796895553267
+      "p50Ms": 0.05906299999998055,
+      "p95Ms": 0.14191600000003746,
+      "serialPerSecond": 13301.188793748546,
+      "eightInFlightPerSecond": 22615.5069348339
     },
     {
       "server": "bun",
       "provider": "bunway",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.07137499999998909,
-      "p95Ms": 0.12037499999999568,
-      "serialPerSecond": 11586.75916144771,
-      "eightInFlightPerSecond": 19059.27772881699
+      "p50Ms": 0.08208350000001019,
+      "p95Ms": 0.197749999999985,
+      "serialPerSecond": 9611.341382831673,
+      "eightInFlightPerSecond": 14606.86979344974
     },
     {
       "server": "bun",
       "provider": "fetch",
       "method": "rpc",
-      "p50Ms": 0.04702050000003055,
-      "p95Ms": 0.07258300000000872,
-      "serialPerSecond": 17872.03728535912,
-      "eightInFlightPerSecond": 39406.181680559406
+      "p50Ms": 0.05589550000001964,
+      "p95Ms": 0.13554200000001515,
+      "serialPerSecond": 14308.112614003614,
+      "eightInFlightPerSecond": 25426.536775909954
     },
     {
       "server": "bun",
       "provider": "fetch",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.06937499999999375,
-      "p95Ms": 0.11220800000000963,
-      "serialPerSecond": 12457.889219964225,
-      "eightInFlightPerSecond": 20287.04906486218
+      "p50Ms": 0.07841650000003142,
+      "p95Ms": 0.1649169999999458,
+      "serialPerSecond": 9498.517233967183,
+      "eightInFlightPerSecond": 15285.813666250038
     },
     {
       "server": "node",
       "provider": "child",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.03324949999998239,
-      "p95Ms": 0.06583299999999781,
-      "serialPerSecond": 27280.164837668126,
-      "eightInFlightPerSecond": 60087.61525399218
+      "p50Ms": 0.04135400000001255,
+      "p95Ms": 0.1588750000000232,
+      "serialPerSecond": 16257.188725639524,
+      "eightInFlightPerSecond": 44185.34648215618
     },
     {
       "server": "bun",
       "provider": "child",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.026437499999985903,
-      "p95Ms": 0.05287500000000023,
-      "serialPerSecond": 36177.264253570596,
-      "eightInFlightPerSecond": 78947.3684210521
+      "p50Ms": 0.07120850000001155,
+      "p95Ms": 0.19849999999996726,
+      "serialPerSecond": 10291.992047995254,
+      "eightInFlightPerSecond": 28391.169991243234
     }
   ],
   "throughput": [
     {
       "method": "rpc-dson",
-      "p50Ms": 5.407603999999978,
-      "mibPerSecond": 29.783954639037074
+      "p50Ms": 8.736187999999999,
+      "mibPerSecond": 18.088906977795858
     },
     {
       "method": "mcp-bytes",
-      "p50Ms": 1.0456459999999481,
-      "mibPerSecond": 184.69778824398446
+      "p50Ms": 3.0816035000000284,
+      "mibPerSecond": 97.87249660504828
     },
     {
       "method": "mcp-functions-auto",
-      "p50Ms": 1.427895499999977,
-      "mibPerSecond": 180.11796646095382
+      "p50Ms": 2.424541999999974,
+      "mibPerSecond": 116.07661056297144
     },
     {
       "method": "mcp-functions-dson",
-      "p50Ms": 6.237687499999936,
-      "mibPerSecond": 26.407695202381973
+      "p50Ms": 8.470625000000041,
+      "mibPerSecond": 17.21056853512576
     }
   ],
   "coldStart": [
     {
       "runtime": "node",
       "baselineVersion": "0.4.0",
-      "baselineMs": 45.936604,
-      "currentMs": 35.53910449999999
+      "baselineMs": 73.73558299999999,
+      "currentMs": 59.901271
     },
     {
       "runtime": "bun",
       "baselineVersion": "0.4.0",
-      "baselineMs": 36.0027915,
-      "currentMs": 26.551521
+      "baselineMs": 40.548729,
+      "currentMs": 29.9311045
     }
   ]
 }
