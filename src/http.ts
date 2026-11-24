@@ -41,6 +41,14 @@ interface BunwayResponse {
   end(body?: ReadableStream<Uint8Array>): unknown;
 }
 const loopback = ['127.0.0.1', '[::1]', 'localhost'];
+/** VERIFIED: @modelcontextprotocol/server 2.4.0 sets `Connection: keep-alive` on every SSE reply. A Fetch handler does not
+ * own the connection: the field is hop-by-hop (RFC 9110 section 7.6.1), HTTP/2 forbids it (RFC 9113 section 8.2.2), and
+ * an early defuss-serve 0.3.0 build answered such a reply with 500. The SDK never returns immutable headers, so edit in place. */
+function withoutConnectionFields(response: Response): Response {
+  response.headers.delete('connection');
+  response.headers.delete('keep-alive');
+  return response;
+}
 type BodyRead = Awaited<ReturnType<typeof readRequestBody>>;
 /** Read a body up to limit bytes. Firefox's Request has no body stream, so read its buffered body whole, then check the size. */
 async function readBounded(request: Request, limit: number): Promise<BodyRead> {
@@ -155,14 +163,14 @@ export function createMcpHttp(tools: ToolRegistry, options: HttpOptions = {}): M
         return await new Promise<Response>((resolve, reject) => {
           abort = () => reject(signal.reason);
           signal.addEventListener('abort', abort, { once: true });
-          transport.handleRequest(request, supplied).then(resolve, reject);
+          transport.handleRequest(request, supplied).then((response) => resolve(withoutConnectionFields(response)), reject);
         });
       } finally {
         if (abort) signal.removeEventListener('abort', abort);
         await server.close();
       }
     }
-    return sdk.fetch(request, supplied);
+    return withoutConnectionFields(await sdk.fetch(request, supplied));
   }
 
   // Node's request adapters load on first use. A host that only calls fetch() therefore never

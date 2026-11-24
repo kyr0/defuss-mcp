@@ -177,6 +177,52 @@ it('serves a raw Node listener in SSE and auto modes without a body parser', asy
     }
   }
 });
+it('returns SSE replies without connection-specific header fields', async () => {
+  // VERIFIED: the SDK sets Connection: keep-alive on SSE, and an early defuss-serve 0.3.0 build answered that with 500.
+  const tools = createMcpApi(identity, {
+    add(a: number, b: number) {
+      return a + b;
+    },
+  });
+  const accept = 'application/json, text/event-stream';
+  const post = (endpoint: ReturnType<typeof createMcpHttp>, body: unknown, headers: Record<string, string> = {}) =>
+    endpoint.fetch(
+      new Request('http://localhost/mcp', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept, ...headers },
+        body: JSON.stringify(body),
+      }),
+    );
+  const modern = createMcpHttp(tools, { mode: 'sse' });
+  const legacy = createMcpHttp(tools);
+  const meta = {
+    'io.modelcontextprotocol/protocolVersion': '2026-07-28',
+    'io.modelcontextprotocol/clientInfo': { name: 'sse', version: '1' },
+    'io.modelcontextprotocol/clientCapabilities': {},
+  };
+  const replies = [
+    await post(
+      modern,
+      { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'add', arguments: { args: [2, 3] }, _meta: meta } },
+      { 'mcp-protocol-version': '2026-07-28', 'mcp-method': 'tools/call', 'mcp-name': 'add' },
+    ),
+    await post(legacy, {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'initialize',
+      params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'sse', version: '1' } },
+    }),
+  ];
+  for (const reply of replies) {
+    expect(reply.status).toBe(200);
+    expect(reply.headers.get('content-type')).toBe('text/event-stream');
+    expect(reply.headers.get('connection')).toBeNull();
+    expect(await reply.text()).toContain('"result"');
+  }
+  await modern.close();
+  await legacy.close();
+});
+
 it('reads a Request without a body stream, as Firefox constructs them', async () => {
   const endpoint = createMcpHttp(
     createMcpApi(identity, {

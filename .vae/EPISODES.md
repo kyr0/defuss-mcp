@@ -88,3 +88,7 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-20T14:33:15Z s=release DONE fp=3186f8d00e7a cov=99.9% paths=.github/workflows/verify.yml,AGENTS.md,ARCH.md,Makefile(+96)
 2026-11-20T17:30:21Z s=12d4a3d6 DONE fp=40b03e92c9cf cov=99.9% paths=tests/compiler.test.ts
 2026-11-20T17:30:21Z s=12d4a3d6 FINDING tests/compiler.test.ts:'compiles aliases…' learn=none: a timeout value is environment-dependent; no test pins it, the constant documents why
+2026-11-24T04:18:20Z s=5940460f DONE fp=f9357fc7e5d4 cov=99.9% paths=docs/404.html,docs/assets/demo-CPSP0GgC.js,docs/assets/demo-DZeTWE9w.js,docs/assets/index-CLCw4mkl.js(+7)
+2026-11-24T04:18:20Z s=5940460f FINDING src/http.ts:createMcpHttp fetch learn=test: VERIFIED: http-boundaries.test.ts SSE test fails with Received keep-alive without the fix and passes with it; make verify ran 73 tests and 112 client cells.
+2026-11-24T04:18:20Z s=5940460f FINDING src/ARCH.md:24 S08 P09 learn=none: Prose fix; no mechanical check fits.
+2026-11-24T04:18:20Z s=5940460f FINDING docs/assets/*, docs/index.html, docs/404.html learn=none: Generated output, no defect.
