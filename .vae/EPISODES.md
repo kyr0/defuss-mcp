@@ -101,3 +101,8 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-24T23:27:30Z s=dcdb118f FINDING docs/VERIFICATION.md:53 B09 learn=verifier: VERIFIED: the site build and site-data refuse evidence from another version or tarball; all five evidence files and site/data/evidence.json carry sha256 f5ae41b
 2026-11-24T23:27:30Z s=dcdb118f FINDING docs/VERIFICATION.md:31 B03 learn=none: VERIFIED: a docs edit after bench always moves the digest; the sentence states its run and load.
 2026-11-24T23:27:30Z s=dcdb118f FINDING docs/VERIFICATION.md:3 B01 learn=none: VERIFIED: no change needed.
+2026-11-24T23:39:26Z s=release FAIL tests.e2e.1
+2026-11-24T23:39:28Z s=bc242df9 FAIL lint,coverage
+2026-11-24T23:42:21Z s=bc242df9 DONE fp=0fc148fe9237 cov=99.9% paths=docs/404.html,docs/index.html,site/data/evidence.json
+2026-11-24T23:42:21Z s=bc242df9 FINDING site/data/evidence.json:3 measuredAt; docs/index.html, docs/404.html bench figures learn=none: Generated output from make bench, scripts/site-data.ts and make site; no defect.
+2026-11-24T23:42:21Z s=bc242df9 FINDING Stop-hook gate vs bun scripts/release.ts (make site → pkgroll --clean-dist; gate.ts → vitest --coverage) learn=memory: Operational overlap of two verifier runs on one checkout, not a code defect; recorded as a narrow MEMORY line so release steps run in the foreground.

@@ -9,3 +9,4 @@ outside it, and recurrence inside one subsystem never widens it.
 Every line carries its BC and stays within 240 chars. Replace stale lines instead of appending.
 Mechanizable lessons belong in tests or .vae/VERIFY.py.
 Budget 4 KiB (`vae.py doctor --repo .`); entries are injected at session start. -->
+- VERIFIED[bun scripts/release.ts] run it in the foreground: a Stop-hook gate overlapping it failed lint (TS2307, dist cleaned by pkgroll) and coverage (shared output/coverage/.tmp) BC 2026-11-24 0.6.2 release; rerun alone passed

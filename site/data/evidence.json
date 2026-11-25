@@ -1,7 +1,7 @@
 {
   "version": "0.6.2",
   "packageSha256": "f5ae41b22246c26ce731bef5de6bb4851823e4779f7134bb3eaf21e817490648",
-  "measuredAt": "2026-11-24T23:21:34.948Z",
+  "measuredAt": "2026-11-24T23:34:37.330Z",
   "host": {
     "cpuModel": "Apple M5 Max",
     "platform": "darwin-25.6.0-arm64",
@@ -15,9 +15,9 @@
     "inspector": "2.16.0"
   },
   "loadAverage": [
-    7.25439453125,
-    7.2646484375,
-    6.49462890625
+    6.61767578125,
+    7.658203125,
+    7.79248046875
   ],
   "cells": [
     {
@@ -698,127 +698,127 @@
       "server": "node",
       "provider": "express",
       "method": "rpc",
-      "p50Ms": 0.10056250000002365,
-      "p95Ms": 0.3973750000000109,
-      "serialPerSecond": 7486.804693897222,
-      "eightInFlightPerSecond": 15351.916294955612
+      "p50Ms": 0.08447899999993069,
+      "p95Ms": 0.17870800000014242,
+      "serialPerSecond": 9664.403585493808,
+      "eightInFlightPerSecond": 21557.48809454029
     },
     {
       "server": "node",
       "provider": "express",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.12885399999993297,
-      "p95Ms": 0.42266700000004676,
-      "serialPerSecond": 6346.704740125283,
-      "eightInFlightPerSecond": 9780.863821440595
+      "p50Ms": 0.10135450000001356,
+      "p95Ms": 0.19945799999982228,
+      "serialPerSecond": 7608.805731743783,
+      "eightInFlightPerSecond": 11402.779427485319
     },
     {
       "server": "bun",
       "provider": "express",
       "method": "rpc",
-      "p50Ms": 0.06847900000008167,
-      "p95Ms": 0.2103749999998854,
-      "serialPerSecond": 11537.296271538116,
-      "eightInFlightPerSecond": 18536.84439188046
+      "p50Ms": 0.05983299999996916,
+      "p95Ms": 0.14875000000000682,
+      "serialPerSecond": 13379.567767711424,
+      "eightInFlightPerSecond": 21726.215734532703
     },
     {
       "server": "bun",
       "provider": "express",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.10039600000004612,
-      "p95Ms": 0.3726250000000846,
-      "serialPerSecond": 8634.957433545595,
-      "eightInFlightPerSecond": 17261.39980602457
+      "p50Ms": 0.08006249999999682,
+      "p95Ms": 0.17883399999999483,
+      "serialPerSecond": 9937.641300837307,
+      "eightInFlightPerSecond": 22271.198236863816
     },
     {
       "server": "bun",
       "provider": "bunway",
       "method": "rpc",
-      "p50Ms": 0.05906299999998055,
-      "p95Ms": 0.14191600000003746,
-      "serialPerSecond": 13301.188793748546,
-      "eightInFlightPerSecond": 22615.5069348339
+      "p50Ms": 0.051833500000000754,
+      "p95Ms": 0.11708400000003394,
+      "serialPerSecond": 15326.354018240438,
+      "eightInFlightPerSecond": 30777.86238127739
     },
     {
       "server": "bun",
       "provider": "bunway",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.08208350000001019,
-      "p95Ms": 0.197749999999985,
-      "serialPerSecond": 9611.341382831673,
-      "eightInFlightPerSecond": 14606.86979344974
+      "p50Ms": 0.07343750000001137,
+      "p95Ms": 0.13249999999999318,
+      "serialPerSecond": 11230.592132970223,
+      "eightInFlightPerSecond": 18538.03638166884
     },
     {
       "server": "bun",
       "provider": "fetch",
       "method": "rpc",
-      "p50Ms": 0.05589550000001964,
-      "p95Ms": 0.13554200000001515,
-      "serialPerSecond": 14308.112614003614,
-      "eightInFlightPerSecond": 25426.536775909954
+      "p50Ms": 0.049832999999949834,
+      "p95Ms": 0.13354200000003402,
+      "serialPerSecond": 17136.00176295186,
+      "eightInFlightPerSecond": 33044.09424588747
     },
     {
       "server": "bun",
       "provider": "fetch",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.07841650000003142,
-      "p95Ms": 0.1649169999999458,
-      "serialPerSecond": 9498.517233967183,
-      "eightInFlightPerSecond": 15285.813666250038
+      "p50Ms": 0.06820850000002565,
+      "p95Ms": 0.13391699999999673,
+      "serialPerSecond": 12481.993164610956,
+      "eightInFlightPerSecond": 21709.4274545559
     },
     {
       "server": "node",
       "provider": "child",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.04135400000001255,
-      "p95Ms": 0.1588750000000232,
-      "serialPerSecond": 16257.188725639524,
-      "eightInFlightPerSecond": 44185.34648215618
+      "p50Ms": 0.034312499999998636,
+      "p95Ms": 0.07254199999999855,
+      "serialPerSecond": 26144.932340836756,
+      "eightInFlightPerSecond": 62437.35939399206
     },
     {
       "server": "bun",
       "provider": "child",
       "method": "mcp-functions-auto",
-      "p50Ms": 0.07120850000001155,
-      "p95Ms": 0.19849999999996726,
-      "serialPerSecond": 10291.992047995254,
-      "eightInFlightPerSecond": 28391.169991243234
+      "p50Ms": 0.030353999999988446,
+      "p95Ms": 0.07266599999999812,
+      "serialPerSecond": 26690.987494471723,
+      "eightInFlightPerSecond": 74807.60419296687
     }
   ],
   "throughput": [
     {
       "method": "rpc-dson",
-      "p50Ms": 8.736187999999999,
-      "mibPerSecond": 18.088906977795858
+      "p50Ms": 6.2558124999999905,
+      "mibPerSecond": 23.86810523237556
     },
     {
       "method": "mcp-bytes",
-      "p50Ms": 3.0816035000000284,
-      "mibPerSecond": 97.87249660504828
+      "p50Ms": 1.30174999999997,
+      "mibPerSecond": 131.31400408701774
     },
     {
       "method": "mcp-functions-auto",
-      "p50Ms": 2.424541999999974,
-      "mibPerSecond": 116.07661056297144
+      "p50Ms": 1.2426664999999275,
+      "mibPerSecond": 138.56412921105127
     },
     {
       "method": "mcp-functions-dson",
-      "p50Ms": 8.470625000000041,
-      "mibPerSecond": 17.21056853512576
+      "p50Ms": 6.737812499999961,
+      "mibPerSecond": 21.667866235854586
     }
   ],
   "coldStart": [
     {
       "runtime": "node",
       "baselineVersion": "0.4.0",
-      "baselineMs": 73.73558299999999,
-      "currentMs": 59.901271
+      "baselineMs": 53.827124999999995,
+      "currentMs": 41.9453125
     },
     {
       "runtime": "bun",
       "baselineVersion": "0.4.0",
-      "baselineMs": 40.548729,
-      "currentMs": 29.9311045
+      "baselineMs": 42.6812495,
+      "currentMs": 30.683208499999996
     }
   ]
 }
